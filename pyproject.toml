@@ -1,7 +1,14 @@
 [project]
 name = "manga-translation"
 version = "0.1.0"
-description = "Add your description here"
+description = "Asynchronous pipeline for manga image translation"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = []
+
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
