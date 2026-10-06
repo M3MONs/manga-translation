@@ -4,7 +4,7 @@ from collections.abc import Sequence
 
 from .context import PageContext
 from .execution_logging import LoggedStep, log_pipeline
-from .step import Step
+from .step import Step, StepGroup
 
 
 class Pipeline:
@@ -14,6 +14,11 @@ class Pipeline:
             LoggedStep(step, position, len(configured_steps))
             for position, step in enumerate(configured_steps, start=1)
         )
+
+    @classmethod
+    def from_groups(cls, groups: Sequence[StepGroup]) -> "Pipeline":
+        """Flatten step groups, in order, into one pipeline."""
+        return cls([step for group in groups for step in group.steps()])
 
     @log_pipeline
     async def run(self, context: PageContext) -> PageContext:
