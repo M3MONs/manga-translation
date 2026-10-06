@@ -5,6 +5,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from manga_translation import PageContext, Pipeline
+from manga_translation.step import Step, StepGroup
 
 
 class RecordStep:
@@ -30,6 +31,19 @@ class PipelineTests(unittest.IsolatedAsyncioTestCase):
         events.clear()
         await Pipeline([second, first]).run(self.context)
         self.assertEqual(events, ["second", "first"])
+
+    async def test_groups_are_flattened_in_order(self) -> None:
+        events = []
+
+        class Group(StepGroup):
+            def __init__(self, *labels: str) -> None:
+                self.labels = labels
+
+            def steps(self) -> list[Step]:
+                return [RecordStep(label, events) for label in self.labels]
+
+        await Pipeline.from_groups([Group("a", "b"), Group("c")]).run(self.context)
+        self.assertEqual(events, ["a", "b", "c"])
 
     async def test_pipeline_copies_step_sequence(self) -> None:
         events = []
