@@ -101,13 +101,13 @@ class TextDetectionTests(unittest.IsolatedAsyncioTestCase):
         assert isinstance(step, DetectText)
         use_session(step.detector, FakeSession([[100, 100, 20, 20, 1, 1, 0]]))
         context = PageContext(Path("page.png"), {"image": Image.new("RGB", (1024, 1024))})
-        with self.assertLogs("manga_translation.steps.text_detection", "INFO") as logs:
+        with self.assertLogs("manga_translation.steps.text_detection", "DEBUG") as logs:
             await step.execute(context)
         self.assertEqual(
             logs.output,
             [
                 "INFO:manga_translation.steps.text_detection:Text detected page=page.png regions=1",
-                "INFO:manga_translation.steps.text_detection:"
+                "DEBUG:manga_translation.steps.text_detection:"
                 "Text region page=page.png box=(90, 90, 110, 110) confidence=1.00",
             ],
         )

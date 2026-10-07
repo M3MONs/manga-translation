@@ -50,33 +50,21 @@ class ComicTextDetector:
         # The model returns dense arrays; the stubs also allow sparse tensors, lists and dicts.
         blocks, seg = cast(list[np.ndarray], self.session.run(["blk", "seg"], {"images": tensor}))
 
-        mask = (seg[0, 0, :height, :width] * 255).clip(0, 255).astype(np.uint8)
         return DetectionResult(
             regions=self._regions(blocks[0], scale, image.size),
-            mask=Image.fromarray(mask, "L").resize(image.size, Image.Resampling.BILINEAR),
+            mask=_to_page_mask(seg, (width, height), image.size),
         )
 
     def _regions(
         self, blocks: np.ndarray, scale: float, page_size: tuple[int, int]
     ) -> list[TextRegion]:
-        """Turn raw [cx, cy, w, h, objectness, class scores...] rows into page regions."""
-        scores = blocks[:, 4] * blocks[:, 5:].max(axis=1)
+        boxes, scores = _decode_blocks(blocks, scale)
         keep = scores >= self.options.confidence_threshold
-        blocks, scores = blocks[keep], scores[keep]
-        centers, sizes = blocks[:, :2], blocks[:, 2:4]
-        boxes = np.concatenate([centers - sizes / 2, centers + sizes / 2], axis=1) / scale
-
-        page_width, page_height = page_size
+        boxes, scores = boxes[keep], scores[keep]
         regions = []
         for index in _non_max_suppression(boxes, scores, self.options.nms_threshold):
-            x1, y1, x2, y2 = boxes[index]
-            box = BoundingBox(
-                x1=int(np.clip(np.floor(x1), 0, page_width)),
-                y1=int(np.clip(np.floor(y1), 0, page_height)),
-                x2=int(np.clip(np.ceil(x2), 0, page_width)),
-                y2=int(np.clip(np.ceil(y2), 0, page_height)),
-            )
-            if box.x2 > box.x1 and box.y2 > box.y1:
+            box = _to_bounding_box(boxes[index], page_size)
+            if box is not None:
                 regions.append(TextRegion(box, float(scores[index])))
         return regions
 
@@ -92,6 +80,33 @@ def _to_model_input(image: Image.Image) -> tuple[np.ndarray, float, tuple[int, i
     canvas.paste(image.resize((width, height), Image.Resampling.BILINEAR))
     tensor = np.asarray(canvas, dtype=np.float32).transpose(2, 0, 1)[np.newaxis] / 255
     return tensor, scale, (width, height)
+
+
+def _to_page_mask(
+    seg: np.ndarray, scaled_size: tuple[int, int], page_size: tuple[int, int]
+) -> Image.Image:
+    """Cut the letterbox padding off the segmentation output and scale it to the page."""
+    width, height = scaled_size
+    mask = (seg[0, 0, :height, :width] * 255).clip(0, 255).astype(np.uint8)
+    return Image.fromarray(mask, "L").resize(page_size, Image.Resampling.BILINEAR)
+
+
+def _decode_blocks(blocks: np.ndarray, scale: float) -> tuple[np.ndarray, np.ndarray]:
+    """Turn raw [cx, cy, w, h, objectness, class scores...] rows into page corner boxes and scores."""
+    scores = blocks[:, 4] * blocks[:, 5:].max(axis=1)
+    centers, sizes = blocks[:, :2], blocks[:, 2:4]
+    boxes = np.concatenate([centers - sizes / 2, centers + sizes / 2], axis=1) / scale
+    return boxes, scores
+
+
+def _to_bounding_box(box: np.ndarray, page_size: tuple[int, int]) -> BoundingBox | None:
+    """Round a float box outward to whole pixels inside the page; None when nothing is left."""
+    page_width, page_height = page_size
+    x1, y1 = np.floor(box[:2]).clip(0, [page_width, page_height]).astype(int)
+    x2, y2 = np.ceil(box[2:]).clip(0, [page_width, page_height]).astype(int)
+    if x2 <= x1 or y2 <= y1:
+        return None
+    return BoundingBox(int(x1), int(y1), int(x2), int(y2))
 
 
 def _non_max_suppression(boxes: np.ndarray, scores: np.ndarray, iou_threshold: float) -> list[int]:
@@ -110,6 +125,11 @@ def _non_max_suppression(boxes: np.ndarray, scores: np.ndarray, iou_threshold: f
     return kept
 
 
+def get_text_regions(context: PageContext) -> list[TextRegion]:
+    """Return the text_regions artifact with its type, since artifacts are stored as object."""
+    return cast(list[TextRegion], context.artifacts["text_regions"])
+
+
 class DetectText:
     """Requires image; produces text_regions (list[TextRegion]) and text_mask (L image)."""
 
@@ -123,7 +143,7 @@ class DetectText:
         logger.info("Text detected page=%s regions=%d", context.source_path, len(result.regions))
         for region in result.regions:
             box = region.box
-            logger.info(
+            logger.debug(
                 "Text region page=%s box=(%d, %d, %d, %d) confidence=%.2f",
                 context.source_path, box.x1, box.y1, box.x2, box.y2, region.confidence,
             )
