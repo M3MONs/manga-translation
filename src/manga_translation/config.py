@@ -30,7 +30,20 @@ class DetectionOptions:
 
 
 @dataclass(frozen=True)
+class RecognitionOptions:
+    model_dir: Path = Path("models/manga-ocr")
+    """manga-ocr ONNX export (encoder, merged decoder, vocab.txt), downloaded manually."""
+    max_length: int = 300
+    """Most tokens decoded per text region, including the start token."""
+
+    def __post_init__(self) -> None:
+        if self.max_length <= 0:
+            raise ValueError("max_length must be > 0")
+
+
+@dataclass(frozen=True)
 class AppConfig:
     input_path: Path
     image: ImageOptions = field(default_factory=ImageOptions)
     detection: DetectionOptions = field(default_factory=DetectionOptions)
+    recognition: RecognitionOptions = field(default_factory=RecognitionOptions)
