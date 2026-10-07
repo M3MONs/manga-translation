@@ -8,6 +8,7 @@ from typer.testing import CliRunner
 
 from manga_translation import AppConfig, ImageOptions
 from manga_translation.cli import app, run
+from manga_translation.steps.text_detection import DetectionResult
 
 
 class CliTests(unittest.TestCase):
@@ -18,6 +19,12 @@ class CliTests(unittest.TestCase):
         patcher = patch("manga_translation.cli.configure_logging")
         patcher.start()
         self.addCleanup(patcher.stop)
+        detect = patch(
+            "manga_translation.steps.text_detection.ComicTextDetector.detect",
+            side_effect=lambda image: DetectionResult([], Image.new("L", image.size)),
+        )
+        detect.start()
+        self.addCleanup(detect.stop)
 
     def save_image(self, name: str, size: tuple[int, int] = (30, 20)) -> Path:
         path = self.directory / name
