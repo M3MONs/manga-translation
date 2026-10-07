@@ -7,11 +7,12 @@ from .context import PageContext
 from .inputs import collect_image_paths
 from .pipeline import Pipeline
 from .steps.image_loading import ImageLoading
+from .steps.text_detection import TextDetection
 
 
 def build_pipeline(config: AppConfig) -> Pipeline:
     """Assemble step groups in processing order; new step groups are added here."""
-    return Pipeline.from_groups([ImageLoading(config.image)])
+    return Pipeline.from_groups([ImageLoading(config.image), TextDetection(config.detection)])
 
 
 def run(config: AppConfig) -> list[PageContext]:
