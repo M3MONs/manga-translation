@@ -5,6 +5,8 @@ description = "Asynchronous pipeline for manga image translation"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "numpy>=2.5.3",
+    "onnxruntime>=1.30.0",
     "pillow>=12.3.0",
     "typer>=0.27.3",
 ]
