@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
 
-from manga_translation import AppConfig, DetectionOptions, ImageOptions
+from manga_translation import AppConfig, DetectionOptions, ImageOptions, RecognitionOptions
 
 
 class ConfigTests(unittest.TestCase):
@@ -13,6 +13,7 @@ class ConfigTests(unittest.TestCase):
         config = AppConfig(Path("page.png"))
         self.assertEqual(config.image, ImageOptions(max_size=4096))
         self.assertEqual(config.detection, DetectionOptions())
+        self.assertEqual(config.recognition, RecognitionOptions())
 
     def test_detection_thresholds_outside_unit_range_are_rejected(self) -> None:
         invalid = {
@@ -23,3 +24,8 @@ class ConfigTests(unittest.TestCase):
         for name, create in invalid.items():
             with self.subTest(name), self.assertRaises(ValueError):
                 create()
+
+    def test_non_positive_max_length_is_rejected(self) -> None:
+        for max_length in (0, -1):
+            with self.subTest(max_length), self.assertRaises(ValueError):
+                RecognitionOptions(max_length=max_length)
