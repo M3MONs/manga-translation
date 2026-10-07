@@ -8,11 +8,18 @@ from .inputs import collect_image_paths
 from .pipeline import Pipeline
 from .steps.image_loading import ImageLoading
 from .steps.text_detection import TextDetection
+from .steps.text_recognition import TextRecognition
 
 
 def build_pipeline(config: AppConfig) -> Pipeline:
     """Assemble step groups in processing order; new step groups are added here."""
-    return Pipeline.from_groups([ImageLoading(config.image), TextDetection(config.detection)])
+    return Pipeline.from_groups(
+        [
+            ImageLoading(config.image),
+            TextDetection(config.detection),
+            TextRecognition(config.recognition),
+        ]
+    )
 
 
 def run(config: AppConfig) -> list[PageContext]:
