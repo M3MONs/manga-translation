@@ -1,7 +1,27 @@
 """Application parameters grouped into immutable parameter objects."""
 
 from dataclasses import dataclass, field
+from enum import StrEnum
 from pathlib import Path
+
+
+class Language(StrEnum):
+    """Target language of the translation, as an ISO 639-1 code."""
+
+    EN = "en"
+    PL = "pl"
+    DE = "de"
+    FR = "fr"
+    ES = "es"
+    IT = "it"
+    PT = "pt"
+    RU = "ru"
+    UK = "uk"
+    ZH = "zh"
+    KO = "ko"
+    ID = "id"
+    VI = "vi"
+    TR = "tr"
 
 
 @dataclass(frozen=True)
@@ -42,8 +62,22 @@ class RecognitionOptions:
 
 
 @dataclass(frozen=True)
+class TranslationOptions:
+    target_language: Language = Language.EN
+    model_dir: Path = Path("models/nllb-200-distilled-600M")
+    """NLLB ONNX export (encoder, decoder, tokenizer.json), downloaded manually."""
+    max_length: int = 256
+    """Most tokens decoded per text region, including the forced prefix."""
+
+    def __post_init__(self) -> None:
+        if self.max_length <= 0:
+            raise ValueError("max_length must be > 0")
+
+
+@dataclass(frozen=True)
 class AppConfig:
     input_path: Path
     image: ImageOptions = field(default_factory=ImageOptions)
     detection: DetectionOptions = field(default_factory=DetectionOptions)
     recognition: RecognitionOptions = field(default_factory=RecognitionOptions)
+    translation: TranslationOptions = field(default_factory=TranslationOptions)
