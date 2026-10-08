@@ -6,7 +6,7 @@ from unittest.mock import patch
 from PIL import Image
 from typer.testing import CliRunner
 
-from manga_translation import AppConfig, ImageOptions
+from manga_translation import AppConfig, ImageOptions, Language, TranslationOptions
 from manga_translation.cli import app, run
 from manga_translation.steps.text_detection import DetectionResult
 
@@ -65,3 +65,26 @@ class CliTests(unittest.TestCase):
             result = self.invoke(str(path), "--max-size", "150")
         self.assertEqual(result.exit_code, 0, result.output)
         self.assertEqual(wrapped_run.call_args.args[0], AppConfig(path, ImageOptions(max_size=150)))
+
+    def test_language_defaults_to_english(self) -> None:
+        path = self.save_image("page.png")
+        with patch("manga_translation.cli.run", wraps=run) as wrapped_run:
+            result = self.invoke(str(path))
+        self.assertEqual(result.exit_code, 0, result.output)
+        self.assertEqual(wrapped_run.call_args.args[0].translation.target_language, Language.EN)
+
+    def test_language_option_reaches_config(self) -> None:
+        path = self.save_image("page.png")
+        with patch("manga_translation.cli.run", wraps=run) as wrapped_run:
+            result = self.invoke(str(path), "--language", "pl")
+        self.assertEqual(result.exit_code, 0, result.output)
+        self.assertEqual(
+            wrapped_run.call_args.args[0],
+            AppConfig(path, translation=TranslationOptions(target_language=Language.PL)),
+        )
+
+    def test_unsupported_language_fails(self) -> None:
+        path = self.save_image("page.png")
+        result = self.invoke(str(path), "--language", "xx")
+        self.assertNotEqual(result.exit_code, 0)
+        self.assertIn("xx", result.output)
