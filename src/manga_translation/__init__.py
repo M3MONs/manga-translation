@@ -5,6 +5,7 @@ from .config import (
     DetectionOptions,
     ImageOptions,
     Language,
+    OutputOptions,
     RecognitionOptions,
     TranslationOptions,
 )
@@ -17,6 +18,7 @@ __all__ = [
     "DetectionOptions",
     "ImageOptions",
     "Language",
+    "OutputOptions",
     "PageContext",
     "Pipeline",
     "RecognitionOptions",
