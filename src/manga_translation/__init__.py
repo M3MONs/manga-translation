@@ -8,6 +8,7 @@ from .config import (
     Language,
     OutputOptions,
     RecognitionOptions,
+    RenderingOptions,
     TranslationOptions,
 )
 from .context import PageContext
@@ -24,6 +25,7 @@ __all__ = [
     "PageContext",
     "Pipeline",
     "RecognitionOptions",
+    "RenderingOptions",
     "Step",
     "TranslationOptions",
 ]
