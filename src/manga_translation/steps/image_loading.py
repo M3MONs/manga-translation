@@ -1,19 +1,13 @@
 """Steps that turn a source file into a uniform RGB image artifact."""
 
-from typing import cast
-
 from PIL import Image, ImageOps
 
+from ..artifacts import get_image
 from ..config import ImageOptions
 from ..context import PageContext
 from ..step import Step, StepGroup
 
 _ALPHA_MODES = {"RGBA", "RGBa", "LA", "La", "PA"}
-
-
-def get_image(context: PageContext) -> Image.Image:
-    """Return the image artifact with its type, since artifacts are stored as object."""
-    return cast(Image.Image, context.artifacts["image"])
 
 
 class LoadImage:
