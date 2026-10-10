@@ -6,7 +6,7 @@ from unittest.mock import patch
 from PIL import Image
 from typer.testing import CliRunner
 
-from manga_translation import AppConfig, ImageOptions, Language, TranslationOptions
+from manga_translation import AppConfig, ImageOptions, Language, OutputOptions, TranslationOptions
 from manga_translation.cli import app, run
 from manga_translation.steps.text_detection import DetectionResult
 
@@ -16,6 +16,7 @@ class CliTests(unittest.TestCase):
         temp_dir = tempfile.TemporaryDirectory()
         self.addCleanup(temp_dir.cleanup)
         self.directory = Path(temp_dir.name)
+        self.output = OutputOptions(self.directory / "out")
         patcher = patch("manga_translation.cli.configure_logging")
         patcher.start()
         self.addCleanup(patcher.stop)
@@ -32,7 +33,7 @@ class CliTests(unittest.TestCase):
         return path
 
     def invoke(self, *args: str):
-        return CliRunner().invoke(app, [*args])
+        return CliRunner().invoke(app, [*args, "--output", str(self.output.output_dir)])
 
     def test_single_file(self) -> None:
         path = self.save_image("page.png")
@@ -64,7 +65,7 @@ class CliTests(unittest.TestCase):
         with patch("manga_translation.cli.run", wraps=run) as wrapped_run:
             result = self.invoke(str(path), "--max-size", "150")
         self.assertEqual(result.exit_code, 0, result.output)
-        self.assertEqual(wrapped_run.call_args.args[0], AppConfig(path, ImageOptions(max_size=150)))
+        self.assertEqual(wrapped_run.call_args.args[0], AppConfig(path, ImageOptions(max_size=150), output=self.output))
 
     def test_language_defaults_to_english(self) -> None:
         path = self.save_image("page.png")
@@ -80,7 +81,9 @@ class CliTests(unittest.TestCase):
         self.assertEqual(result.exit_code, 0, result.output)
         self.assertEqual(
             wrapped_run.call_args.args[0],
-            AppConfig(path, translation=TranslationOptions(target_language=Language.PL)),
+            AppConfig(
+                path, translation=TranslationOptions(target_language=Language.PL), output=self.output
+            ),
         )
 
     def test_unsupported_language_fails(self) -> None:
@@ -88,3 +91,16 @@ class CliTests(unittest.TestCase):
         result = self.invoke(str(path), "--language", "xx")
         self.assertNotEqual(result.exit_code, 0)
         self.assertIn("xx", result.output)
+
+    def test_output_defaults_to_output_directory(self) -> None:
+        path = self.save_image("page.png")
+        with patch("manga_translation.cli.run") as fake_run:
+            result = CliRunner().invoke(app, [str(path)])
+        self.assertEqual(result.exit_code, 0, result.output)
+        self.assertEqual(fake_run.call_args.args[0].output, OutputOptions(Path("output")))
+
+    def test_output_option_writes_page_there(self) -> None:
+        path = self.save_image("page.png")
+        result = self.invoke(str(path))
+        self.assertEqual(result.exit_code, 0, result.output)
+        self.assertTrue((self.output.output_dir / "page.png").is_file())
