@@ -75,9 +75,16 @@ class TranslationOptions:
 
 
 @dataclass(frozen=True)
+class OutputOptions:
+    output_dir: Path = Path("output")
+    """Directory receiving the translated pages, named like their source files."""
+
+
+@dataclass(frozen=True)
 class AppConfig:
     input_path: Path
     image: ImageOptions = field(default_factory=ImageOptions)
     detection: DetectionOptions = field(default_factory=DetectionOptions)
     recognition: RecognitionOptions = field(default_factory=RecognitionOptions)
     translation: TranslationOptions = field(default_factory=TranslationOptions)
+    output: OutputOptions = field(default_factory=OutputOptions)
