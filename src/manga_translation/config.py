@@ -91,6 +91,23 @@ class ErasingOptions:
 
 
 @dataclass(frozen=True)
+class RenderingOptions:
+    target_language: Language = Language.EN
+    """Language of the translated text; chooses between font_path and cjk_font_path."""
+    font_path: Path = Path("models/fonts/NotoSans-Regular.ttf")
+    """Font for Latin, Cyrillic and Vietnamese text, downloaded manually."""
+    cjk_font_path: Path = Path("models/fonts/NotoSansCJKjp-Regular.otf")
+    """Font for Chinese and Korean text, downloaded manually."""
+    min_font_size: int = 8
+    """Smallest font size; text that does not fit even at this size overflows its region."""
+    max_font_size: int = 48
+
+    def __post_init__(self) -> None:
+        if not 0 < self.min_font_size <= self.max_font_size:
+            raise ValueError("font sizes must satisfy 0 < min_font_size <= max_font_size")
+
+
+@dataclass(frozen=True)
 class OutputOptions:
     output_dir: Path = Path("output")
     """Directory receiving the translated pages, named like their source files."""
@@ -104,4 +121,5 @@ class AppConfig:
     recognition: RecognitionOptions = field(default_factory=RecognitionOptions)
     translation: TranslationOptions = field(default_factory=TranslationOptions)
     erasing: ErasingOptions = field(default_factory=ErasingOptions)
+    rendering: RenderingOptions = field(default_factory=RenderingOptions)
     output: OutputOptions = field(default_factory=OutputOptions)
