@@ -6,6 +6,7 @@ from manga_translation import (
     DetectionOptions,
     ImageOptions,
     Language,
+    OutputOptions,
     RecognitionOptions,
     TranslationOptions,
 )
@@ -23,6 +24,7 @@ class ConfigTests(unittest.TestCase):
         self.assertEqual(config.recognition, RecognitionOptions())
         self.assertEqual(config.translation, TranslationOptions())
         self.assertEqual(config.translation.target_language, Language.EN)
+        self.assertEqual(config.output, OutputOptions(Path("output")))
 
     def test_detection_thresholds_outside_unit_range_are_rejected(self) -> None:
         invalid = {
