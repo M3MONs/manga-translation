@@ -3,6 +3,7 @@
 from .config import (
     AppConfig,
     DetectionOptions,
+    ErasingOptions,
     ImageOptions,
     Language,
     OutputOptions,
@@ -16,6 +17,7 @@ from .step import Step
 __all__ = [
     "AppConfig",
     "DetectionOptions",
+    "ErasingOptions",
     "ImageOptions",
     "Language",
     "OutputOptions",
