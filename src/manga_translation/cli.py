@@ -6,7 +6,14 @@ from typing import Annotated
 import typer
 
 from .application import run
-from .config import AppConfig, ImageOptions, Language, OutputOptions, TranslationOptions
+from .config import (
+    AppConfig,
+    ImageOptions,
+    Language,
+    OutputOptions,
+    RenderingOptions,
+    TranslationOptions,
+)
 from .inputs import InputError
 from .logging_config import configure_logging
 
@@ -25,6 +32,7 @@ def translate(
         input_path,
         ImageOptions(max_size),
         translation=TranslationOptions(language),
+        rendering=RenderingOptions(language),
         output=OutputOptions(output),
     )
     try:
