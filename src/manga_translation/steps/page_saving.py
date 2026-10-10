@@ -1,23 +1,13 @@
 """Steps that write the translated page to a new file, leaving the source untouched."""
 
-from pathlib import Path
-from typing import cast
-
-from PIL import Image
-
+from ..artifacts import get_output_image
 from ..config import OutputOptions
 from ..context import PageContext
 from ..step import Step, StepGroup
-from .image_loading import get_image
-
-
-def get_output_path(context: PageContext) -> Path:
-    """Return the output_path artifact with its type, since artifacts are stored as object."""
-    return cast(Path, context.artifacts["output_path"])
 
 
 class SavePage:
-    """Requires output_image (or image until text is erased) and source_path; produces output_path."""
+    """Requires output_image and source_path; produces output_path."""
 
     def __init__(self, options: OutputOptions) -> None:
         self.options = options
@@ -26,9 +16,8 @@ class SavePage:
         path = self.options.output_dir / context.source_path.name
         if path.resolve() == context.source_path.resolve():
             raise ValueError(f"Output path {path} would overwrite the source image")
-        image = cast(Image.Image, context.artifacts.get("output_image", get_image(context)))
         path.parent.mkdir(parents=True, exist_ok=True)
-        image.save(path)
+        get_output_image(context).save(path)
         context.artifacts["output_path"] = path
 
 
