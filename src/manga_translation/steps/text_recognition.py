@@ -12,12 +12,11 @@ import numpy as np
 import onnxruntime
 from PIL import Image
 
+from ..artifacts import get_image, get_text_regions
 from ..config import RecognitionOptions
 from ..context import PageContext
 from ..regions import TextRegion
 from ..step import Step, StepGroup
-from .image_loading import get_image
-from .text_detection import get_text_regions
 
 _INPUT_SIZE = 224
 _START_ID = 2
