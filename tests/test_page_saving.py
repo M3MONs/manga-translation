@@ -6,7 +6,8 @@ from pathlib import Path
 from PIL import Image
 
 from manga_translation import OutputOptions, PageContext, Pipeline
-from manga_translation.steps.page_saving import PageSaving, get_output_path
+from manga_translation.artifacts import get_output_path
+from manga_translation.steps.page_saving import PageSaving
 
 
 class PageSavingTests(unittest.IsolatedAsyncioTestCase):
@@ -17,21 +18,16 @@ class PageSavingTests(unittest.IsolatedAsyncioTestCase):
         self.source = self.directory / "page.png"
         Image.new("RGB", (4, 4), "black").save(self.source)
 
-    async def save(self, output_dir: Path, **artifacts: object) -> PageContext:
-        context = PageContext(self.source, {"image": Image.new("RGB", (4, 4), "red"), **artifacts})
+    async def save(self, output_dir: Path) -> PageContext:
+        context = PageContext(self.source, {"output_image": Image.new("RGB", (4, 4), "blue")})
         return await Pipeline.from_groups([PageSaving(OutputOptions(output_dir))]).run(context)
 
     async def test_saves_output_image_into_created_directory(self) -> None:
         output_dir = self.directory / "out" / "nested"
-        context = await self.save(output_dir, output_image=Image.new("RGB", (4, 4), "blue"))
+        context = await self.save(output_dir)
         self.assertEqual(get_output_path(context), output_dir / "page.png")
         with Image.open(output_dir / "page.png") as saved:
             self.assertEqual(saved.convert("RGB").getpixel((0, 0)), (0, 0, 255))
-
-    async def test_saves_image_when_output_image_is_missing(self) -> None:
-        context = await self.save(self.directory / "out")
-        with Image.open(get_output_path(context)) as saved:
-            self.assertEqual(saved.convert("RGB").getpixel((0, 0)), (255, 0, 0))
 
     async def test_source_file_is_unchanged(self) -> None:
         before = hashlib.sha256(self.source.read_bytes()).digest()
