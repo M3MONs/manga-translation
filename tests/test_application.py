@@ -7,8 +7,7 @@ from PIL import Image
 
 from manga_translation import AppConfig, ImageOptions, OutputOptions
 from manga_translation.application import run
-from manga_translation.steps.image_loading import get_image
-from manga_translation.steps.page_saving import get_output_path
+from manga_translation.artifacts import get_image, get_output_path
 from manga_translation.steps.text_detection import DetectionResult
 
 
