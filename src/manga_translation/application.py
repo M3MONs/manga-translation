@@ -11,6 +11,7 @@ from .steps.page_saving import PageSaving
 from .steps.text_detection import TextDetection
 from .steps.text_erasing import TextErasing
 from .steps.text_recognition import TextRecognition
+from .steps.text_rendering import TextRendering
 from .steps.text_translation import TextTranslation
 
 
@@ -23,6 +24,7 @@ def build_pipeline(config: AppConfig) -> Pipeline:
             TextRecognition(config.recognition),
             TextTranslation(config.translation),
             TextErasing(config.erasing),
+            TextRendering(config.rendering),
             PageSaving(config.output),
         ]
     )
