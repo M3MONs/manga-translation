@@ -9,11 +9,11 @@ import numpy as np
 import onnxruntime
 from PIL import Image
 
+from ..artifacts import get_image
 from ..config import DetectionOptions
 from ..context import PageContext
 from ..regions import BoundingBox, TextRegion
 from ..step import Step, StepGroup
-from .image_loading import get_image
 
 _INPUT_SIZE = 1024
 _WEIGHTS_URL = "https://github.com/zyddnys/manga-image-translator/releases/tag/beta-0.3"
@@ -123,11 +123,6 @@ def _non_max_suppression(boxes: np.ndarray, scores: np.ndarray, iou_threshold: f
         iou = intersection / (areas[best] + areas[rest] - intersection)
         order = rest[iou <= iou_threshold]
     return kept
-
-
-def get_text_regions(context: PageContext) -> list[TextRegion]:
-    """Return the text_regions artifact with its type, since artifacts are stored as object."""
-    return cast(list[TextRegion], context.artifacts["text_regions"])
 
 
 class DetectText:
