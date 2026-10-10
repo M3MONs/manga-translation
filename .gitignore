@@ -9,5 +9,11 @@ wheels/
 # Virtual environments
 .venv
 
+# Vscode settings
+.vscode/
+
 # Model weights
 models/
+
+# Translated pages
+output/
