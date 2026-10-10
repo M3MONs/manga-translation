@@ -11,8 +11,8 @@ from tokenizers.models import WordLevel
 from tokenizers.pre_tokenizers import Whitespace
 
 from manga_translation import Language, PageContext, Pipeline, TranslationOptions
+from manga_translation.artifacts import get_text_regions
 from manga_translation.regions import BoundingBox, TextRegion
-from manga_translation.steps.text_detection import get_text_regions
 from manga_translation.steps.text_translation import (
     _TARGET_CODES,
     NllbTranslator,
