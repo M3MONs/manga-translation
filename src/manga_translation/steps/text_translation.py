@@ -11,10 +11,10 @@ import numpy as np
 import onnxruntime
 from tokenizers import Tokenizer
 
+from ..artifacts import get_text_regions
 from ..config import Language, TranslationOptions
 from ..context import PageContext
 from ..step import Step, StepGroup
-from .text_detection import get_text_regions
 
 _SOURCE_CODE = "jpn_Jpan"
 _TARGET_CODES = {
