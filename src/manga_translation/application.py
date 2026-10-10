@@ -9,6 +9,7 @@ from .pipeline import Pipeline
 from .steps.image_loading import ImageLoading
 from .steps.page_saving import PageSaving
 from .steps.text_detection import TextDetection
+from .steps.text_erasing import TextErasing
 from .steps.text_recognition import TextRecognition
 from .steps.text_translation import TextTranslation
 
@@ -21,6 +22,7 @@ def build_pipeline(config: AppConfig) -> Pipeline:
             TextDetection(config.detection),
             TextRecognition(config.recognition),
             TextTranslation(config.translation),
+            TextErasing(config.erasing),
             PageSaving(config.output),
         ]
     )
