@@ -5,9 +5,10 @@ from unittest.mock import patch
 
 from PIL import Image
 
-from manga_translation import AppConfig, ImageOptions
+from manga_translation import AppConfig, ImageOptions, OutputOptions
 from manga_translation.application import run
 from manga_translation.steps.image_loading import get_image
+from manga_translation.steps.page_saving import get_output_path
 from manga_translation.steps.text_detection import DetectionResult
 
 
@@ -16,6 +17,7 @@ class RunTests(unittest.TestCase):
         temp_dir = tempfile.TemporaryDirectory()
         self.addCleanup(temp_dir.cleanup)
         self.directory = Path(temp_dir.name)
+        self.output = OutputOptions(self.directory / "out")
         detect = patch(
             "manga_translation.steps.text_detection.ComicTextDetector.detect",
             side_effect=lambda image: DetectionResult([], Image.new("L", image.size)),
@@ -31,10 +33,16 @@ class RunTests(unittest.TestCase):
     def test_returns_one_context_per_image_in_order(self) -> None:
         self.save_image("b.png")
         self.save_image("a.png")
-        contexts = run(AppConfig(self.directory))
+        contexts = run(AppConfig(self.directory, output=self.output))
         self.assertEqual([context.source_path.name for context in contexts], ["a.png", "b.png"])
 
     def test_image_options_reach_steps(self) -> None:
         path = self.save_image("page.png", (300, 100))
-        [context] = run(AppConfig(path, ImageOptions(max_size=150)))
+        [context] = run(AppConfig(path, ImageOptions(max_size=150), output=self.output))
         self.assertEqual(get_image(context).size, (150, 50))
+
+    def test_pages_are_saved_into_output_directory(self) -> None:
+        path = self.save_image("page.png")
+        [context] = run(AppConfig(path, output=self.output))
+        self.assertEqual(get_output_path(context), self.directory / "out" / "page.png")
+        self.assertTrue(get_output_path(context).is_file())
