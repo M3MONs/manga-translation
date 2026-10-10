@@ -7,6 +7,7 @@ from .context import PageContext
 from .inputs import collect_image_paths
 from .pipeline import Pipeline
 from .steps.image_loading import ImageLoading
+from .steps.page_saving import PageSaving
 from .steps.text_detection import TextDetection
 from .steps.text_recognition import TextRecognition
 from .steps.text_translation import TextTranslation
@@ -20,6 +21,7 @@ def build_pipeline(config: AppConfig) -> Pipeline:
             TextDetection(config.detection),
             TextRecognition(config.recognition),
             TextTranslation(config.translation),
+            PageSaving(config.output),
         ]
     )
 
