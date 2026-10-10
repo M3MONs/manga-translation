@@ -6,7 +6,14 @@ from unittest.mock import patch
 from PIL import Image
 from typer.testing import CliRunner
 
-from manga_translation import AppConfig, ImageOptions, Language, OutputOptions, TranslationOptions
+from manga_translation import (
+    AppConfig,
+    ImageOptions,
+    Language,
+    OutputOptions,
+    RenderingOptions,
+    TranslationOptions,
+)
 from manga_translation.cli import app, run
 from manga_translation.steps.text_detection import DetectionResult
 
@@ -82,7 +89,10 @@ class CliTests(unittest.TestCase):
         self.assertEqual(
             wrapped_run.call_args.args[0],
             AppConfig(
-                path, translation=TranslationOptions(target_language=Language.PL), output=self.output
+                path,
+                translation=TranslationOptions(target_language=Language.PL),
+                rendering=RenderingOptions(target_language=Language.PL),
+                output=self.output,
             ),
         )
 
