@@ -9,6 +9,7 @@ from manga_translation import (
     Language,
     OutputOptions,
     RecognitionOptions,
+    RenderingOptions,
     TranslationOptions,
 )
 
@@ -26,6 +27,7 @@ class ConfigTests(unittest.TestCase):
         self.assertEqual(config.translation, TranslationOptions())
         self.assertEqual(config.translation.target_language, Language.EN)
         self.assertEqual(config.erasing, ErasingOptions(mask_threshold=64, mask_dilation=21))
+        self.assertEqual(config.rendering, RenderingOptions(Language.EN, min_font_size=8, max_font_size=48))
         self.assertEqual(config.output, OutputOptions(Path("output")))
 
     def test_detection_thresholds_outside_unit_range_are_rejected(self) -> None:
@@ -51,6 +53,15 @@ class ConfigTests(unittest.TestCase):
             "threshold above 255": lambda: ErasingOptions(mask_threshold=256),
             "dilation below 1": lambda: ErasingOptions(mask_dilation=0),
             "even dilation": lambda: ErasingOptions(mask_dilation=4),
+        }
+        for name, create in invalid.items():
+            with self.subTest(name), self.assertRaises(ValueError):
+                create()
+
+    def test_invalid_font_sizes_are_rejected(self) -> None:
+        invalid = {
+            "min not positive": lambda: RenderingOptions(min_font_size=0),
+            "min above max": lambda: RenderingOptions(min_font_size=20, max_font_size=10),
         }
         for name, create in invalid.items():
             with self.subTest(name), self.assertRaises(ValueError):
