@@ -75,6 +75,22 @@ class TranslationOptions:
 
 
 @dataclass(frozen=True)
+class ErasingOptions:
+    model_path: Path = Path("models/lama/lama_fp32.onnx")
+    """LaMa inpainting ONNX weights, downloaded manually."""
+    mask_threshold: int = 64
+    """Text mask values above this (0–255) count as text pixels."""
+    mask_dilation: int = 21
+    """Odd size of the filter growing the text mask to cover glyph outlines; 1 disables it."""
+
+    def __post_init__(self) -> None:
+        if not 0 <= self.mask_threshold <= 255:
+            raise ValueError("mask_threshold must be between 0 and 255")
+        if self.mask_dilation < 1 or self.mask_dilation % 2 == 0:
+            raise ValueError("mask_dilation must be an odd number >= 1")
+
+
+@dataclass(frozen=True)
 class OutputOptions:
     output_dir: Path = Path("output")
     """Directory receiving the translated pages, named like their source files."""
@@ -87,4 +103,5 @@ class AppConfig:
     detection: DetectionOptions = field(default_factory=DetectionOptions)
     recognition: RecognitionOptions = field(default_factory=RecognitionOptions)
     translation: TranslationOptions = field(default_factory=TranslationOptions)
+    erasing: ErasingOptions = field(default_factory=ErasingOptions)
     output: OutputOptions = field(default_factory=OutputOptions)
