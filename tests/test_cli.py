@@ -15,6 +15,7 @@ from manga_translation import (
     TranslationOptions,
 )
 from manga_translation.cli import app, run
+from manga_translation.downloads import DownloadError
 from manga_translation.steps.text_detection import DetectionResult
 
 
@@ -40,7 +41,7 @@ class CliTests(unittest.TestCase):
         return path
 
     def invoke(self, *args: str):
-        return CliRunner().invoke(app, [*args, "--output", str(self.output.output_dir)])
+        return CliRunner().invoke(app, ["translate", *args, "--output", str(self.output.output_dir)])
 
     def test_single_file(self) -> None:
         path = self.save_image("page.png")
@@ -105,7 +106,7 @@ class CliTests(unittest.TestCase):
     def test_output_defaults_to_output_directory(self) -> None:
         path = self.save_image("page.png")
         with patch("manga_translation.cli.run") as fake_run:
-            result = CliRunner().invoke(app, [str(path)])
+            result = CliRunner().invoke(app, ["translate", str(path)])
         self.assertEqual(result.exit_code, 0, result.output)
         self.assertEqual(fake_run.call_args.args[0].output, OutputOptions(Path("output")))
 
@@ -134,7 +135,7 @@ class CliConfigFileTests(unittest.TestCase):
         return path
 
     def invoke(self, *args: str):
-        return CliRunner().invoke(app, [str(self.page), *args])
+        return CliRunner().invoke(app, ["translate", str(self.page), *args])
 
     def config_used(self) -> AppConfig:
         return self.run_mock.call_args.args[0]
@@ -213,3 +214,40 @@ class CliConfigFileTests(unittest.TestCase):
                 self.assertNotEqual(result.exit_code, 0)
                 self.assertIn("max_size", result.output)
         self.run_mock.assert_not_called()
+
+
+class CliDownloadModelsTests(unittest.TestCase):
+    def setUp(self) -> None:
+        temp_dir = tempfile.TemporaryDirectory()
+        self.addCleanup(temp_dir.cleanup)
+        self.directory = Path(temp_dir.name)
+        patcher = patch("manga_translation.cli.DEFAULT_CONFIG_PATH", self.directory / "missing.yaml")
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def invoke(self, *args: str):
+        return CliRunner().invoke(app, ["download-models", *args])
+
+    def test_downloads_to_config_paths(self) -> None:
+        config = self.directory / "settings.yaml"
+        config.write_text("detection:\n  model_path: custom/detector.onnx\n", "utf-8")
+        with patch("manga_translation.cli.download", return_value=True) as fake_download:
+            result = self.invoke("--config", str(config))
+        self.assertEqual(result.exit_code, 0, result.output)
+        paths = [call.args[0].path for call in fake_download.call_args_list]
+        self.assertIn(Path("custom/detector.onnx"), paths)
+        self.assertIn(f"{Path('custom/detector.onnx')}: downloaded\n", result.output)
+
+    def test_existing_files_are_reported(self) -> None:
+        with patch("manga_translation.cli.download", return_value=False):
+            result = self.invoke()
+        self.assertEqual(result.exit_code, 0, result.output)
+        self.assertIn(f"{Path('models/comictextdetector.pt.onnx')}: exists\n", result.output)
+
+    def test_failed_download_stops(self) -> None:
+        error = DownloadError("https://example.com/model.onnx: connection reset")
+        with patch("manga_translation.cli.download", side_effect=error) as fake_download:
+            result = self.invoke()
+        self.assertEqual(result.exit_code, 1)
+        self.assertIn("connection reset", result.output)
+        fake_download.assert_called_once()

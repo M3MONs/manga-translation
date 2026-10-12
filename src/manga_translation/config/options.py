@@ -46,7 +46,7 @@ class ImageOptions:
 
 @dataclass(frozen=True)
 class DetectionOptions:
-    # comic-text-detector ONNX weights, downloaded manually.
+    # comic-text-detector ONNX weights, downloaded by `download-models`.
     model_path: Path = Path("models/comictextdetector.pt.onnx")
     # Detections scoring below this are discarded.
     confidence_threshold: float = 0.4
@@ -63,10 +63,10 @@ class DetectionOptions:
 class RecognitionOptions:
     # Language of the text on the pages; one of SOURCE_LANGUAGES.
     source_language: Language = Language.JA
-    # manga-ocr ONNX export (encoder, merged decoder, vocab.txt) reading Japanese, downloaded manually.
+    # manga-ocr ONNX export (encoder, merged decoder, vocab.txt) reading Japanese, downloaded by `download-models`.
     manga_ocr_dir: Path = Path("models/manga-ocr")
     # PaddleOCR recognition exports reading the other source languages, one directory per language
-    # code (en, ko, zh) holding model.onnx and dict.txt, downloaded manually.
+    # code (en, ko, zh) holding model.onnx and dict.txt, downloaded by `download-models`.
     paddle_ocr_dir: Path = Path("models/paddleocr")
     # Most tokens manga-ocr decodes per text region, including the start token.
     max_length: int = 300
@@ -82,7 +82,7 @@ class TranslationOptions:
     target_language: Language = Language.EN
     # Language of the text on the pages; one of SOURCE_LANGUAGES.
     source_language: Language = Language.JA
-    # NLLB ONNX export (encoder, decoder, tokenizer.json), downloaded manually.
+    # NLLB ONNX export (encoder, decoder, tokenizer.json), downloaded by `download-models`.
     model_dir: Path = Path("models/nllb-200-distilled-600M")
     # Most tokens decoded per text region, including the forced prefix.
     max_length: int = 256
@@ -95,7 +95,7 @@ class TranslationOptions:
 
 @dataclass(frozen=True)
 class ErasingOptions:
-    # LaMa inpainting ONNX weights, downloaded manually.
+    # LaMa inpainting ONNX weights, downloaded by `download-models`.
     model_path: Path = Path("models/lama/lama_fp32.onnx")
     # Text mask values above this (0–255) count as text pixels.
     mask_threshold: int = 64
@@ -113,9 +113,9 @@ class ErasingOptions:
 class RenderingOptions:
     # Language of the translated text; chooses between font_path and cjk_font_path.
     target_language: Language = Language.EN
-    # Font for Latin, Cyrillic and Vietnamese text, downloaded manually.
+    # Font for Latin, Cyrillic and Vietnamese text, downloaded by `download-models`.
     font_path: Path = Path("fonts/NotoSans-Regular.ttf")
-    # Font for Chinese, Korean and Japanese text, downloaded manually.
+    # Font for Chinese, Korean and Japanese text, downloaded by `download-models`.
     cjk_font_path: Path = Path("fonts/NotoSansCJKjp-Regular.otf")
     # Smallest font size; text that does not fit even at this size overflows its region.
     min_font_size: int = 8

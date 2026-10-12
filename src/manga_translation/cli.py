@@ -9,6 +9,7 @@ import typer
 from .application import run
 from .config.loading import build_config, load_config_data
 from .config.options import AppConfig, Language
+from .downloads import DownloadError, download, required_downloads
 from .inputs import InputError
 from .logs.setup import configure_logging
 
@@ -38,6 +39,28 @@ def translate(
         raise typer.BadParameter(str(error)) from error
     for context in contexts:
         typer.echo(f"{context.source_path}: done")
+
+
+@app.command()
+def download_models(
+    config: Annotated[
+        Path | None,
+        typer.Option(exists=True, dir_okay=False, help="YAML settings file; defaults to ./config.yaml if it exists."),
+    ] = None,
+) -> None:
+    """Download the model weights and fonts to the paths given in the settings."""
+    # The input path is irrelevant here; only the model and font paths are used.
+    app_config = _load_config(Path("."), config)
+    for item in required_downloads(app_config):
+        # The path is shown before the download starts, so a long download shows what it is busy with.
+        typer.echo(f"{item.path}: ", nl=False)
+        try:
+            downloaded = download(item)
+        except DownloadError as error:
+            typer.echo("failed")
+            typer.echo(f"Error: {error}", err=True)
+            raise typer.Exit(1) from error
+        typer.echo("downloaded" if downloaded else "exists")
 
 
 def _load_config(input_path: Path, config_path: Path | None) -> AppConfig:
