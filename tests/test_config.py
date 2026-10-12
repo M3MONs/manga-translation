@@ -68,14 +68,20 @@ class ConfigTests(unittest.TestCase):
                 create()
 
     def test_source_language_defaults_to_japanese(self) -> None:
+        self.assertEqual(RecognitionOptions().source_language, Language.JA)
         self.assertEqual(TranslationOptions().source_language, Language.JA)
 
     def test_unsupported_source_language_is_rejected(self) -> None:
-        for language in (Language.PL, Language.RU):
-            with self.subTest(language), self.assertRaises(ValueError):
-                TranslationOptions(source_language=language)
+        invalid = {
+            "recognition": lambda: RecognitionOptions(source_language=Language.PL),
+            "translation": lambda: TranslationOptions(source_language=Language.PL),
+        }
+        for name, create in invalid.items():
+            with self.subTest(name), self.assertRaises(ValueError):
+                create()
 
     def test_supported_source_languages_are_accepted(self) -> None:
         for language in (Language.JA, Language.EN, Language.KO, Language.ZH):
             with self.subTest(language):
+                self.assertEqual(RecognitionOptions(source_language=language).source_language, language)
                 self.assertEqual(TranslationOptions(source_language=language).source_language, language)

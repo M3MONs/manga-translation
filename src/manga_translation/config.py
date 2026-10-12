@@ -29,6 +29,11 @@ SOURCE_LANGUAGES = frozenset({Language.JA, Language.EN, Language.KO, Language.ZH
 """Languages the text on the pages can be read and translated from."""
 
 
+def _check_source_language(language: Language) -> None:
+    if language not in SOURCE_LANGUAGES:
+        raise ValueError(f"source_language must be one of {', '.join(sorted(SOURCE_LANGUAGES))}")
+
+
 @dataclass(frozen=True)
 class ImageOptions:
     max_size: int = 4096
@@ -56,12 +61,15 @@ class DetectionOptions:
 
 @dataclass(frozen=True)
 class RecognitionOptions:
+    source_language: Language = Language.JA
+    """Language of the text on the pages; one of SOURCE_LANGUAGES."""
     model_dir: Path = Path("models/manga-ocr")
     """manga-ocr ONNX export (encoder, merged decoder, vocab.txt), downloaded manually."""
     max_length: int = 300
     """Most tokens decoded per text region, including the start token."""
 
     def __post_init__(self) -> None:
+        _check_source_language(self.source_language)
         if self.max_length <= 0:
             raise ValueError("max_length must be > 0")
 
@@ -77,8 +85,7 @@ class TranslationOptions:
     """Most tokens decoded per text region, including the forced prefix."""
 
     def __post_init__(self) -> None:
-        if self.source_language not in SOURCE_LANGUAGES:
-            raise ValueError(f"source_language must be one of {', '.join(sorted(SOURCE_LANGUAGES))}")
+        _check_source_language(self.source_language)
         if self.max_length <= 0:
             raise ValueError("max_length must be > 0")
 

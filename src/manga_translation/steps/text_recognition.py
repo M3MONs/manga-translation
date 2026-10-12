@@ -13,7 +13,7 @@ import onnxruntime
 from PIL import Image
 
 from ..artifacts import get_image, get_text_regions
-from ..config import RecognitionOptions
+from ..config import Language, RecognitionOptions
 from ..context import PageContext
 from ..regions import TextRegion
 from ..step import Step, StepGroup
@@ -133,4 +133,6 @@ class TextRecognition(StepGroup):
         self.options = options
 
     def steps(self) -> list[Step]:
+        if self.options.source_language != Language.JA:
+            raise ValueError(f"Text recognition for {self.options.source_language} is not supported yet")
         return [RecognizeText(MangaOcr(self.options))]

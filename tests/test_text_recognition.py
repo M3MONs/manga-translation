@@ -5,7 +5,7 @@ from unittest.mock import patch
 import numpy as np
 from PIL import Image
 
-from manga_translation import PageContext, Pipeline, RecognitionOptions
+from manga_translation import Language, PageContext, Pipeline, RecognitionOptions
 from manga_translation.regions import BoundingBox, TextRegion
 from manga_translation.steps.text_recognition import (
     MangaOcr,
@@ -82,6 +82,18 @@ class MangaOcrTests(unittest.TestCase):
         ocr = MangaOcr(RecognitionOptions(model_dir=Path("missing")))
         with self.assertRaisesRegex(FileNotFoundError, "encoder_model.onnx"):
             ocr.recognize(Image.new("RGB", (10, 10)))
+
+
+class TextRecognitionGroupTests(unittest.TestCase):
+    def test_japanese_text_is_read_with_manga_ocr(self) -> None:
+        [step] = TextRecognition(RecognitionOptions(source_language=Language.JA)).steps()
+        assert isinstance(step, RecognizeText)
+        self.assertIsInstance(step.ocr, MangaOcr)
+
+    def test_other_source_languages_are_not_supported_yet(self) -> None:
+        for language in (Language.EN, Language.KO, Language.ZH):
+            with self.subTest(language), self.assertRaisesRegex(ValueError, "not supported yet"):
+                TextRecognition(RecognitionOptions(source_language=language)).steps()
 
 
 class TextRecognitionTests(unittest.IsolatedAsyncioTestCase):
