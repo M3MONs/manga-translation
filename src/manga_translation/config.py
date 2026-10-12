@@ -63,10 +63,13 @@ class DetectionOptions:
 class RecognitionOptions:
     source_language: Language = Language.JA
     """Language of the text on the pages; one of SOURCE_LANGUAGES."""
-    model_dir: Path = Path("models/manga-ocr")
-    """manga-ocr ONNX export (encoder, merged decoder, vocab.txt), downloaded manually."""
+    manga_ocr_dir: Path = Path("models/manga-ocr")
+    """manga-ocr ONNX export (encoder, merged decoder, vocab.txt) reading Japanese, downloaded manually."""
+    paddle_ocr_dir: Path = Path("models/paddleocr")
+    """PaddleOCR recognition exports reading the other source languages, one directory per language
+    code (en, ko, zh) holding model.onnx and dict.txt, downloaded manually."""
     max_length: int = 300
-    """Most tokens decoded per text region, including the start token."""
+    """Most tokens manga-ocr decodes per text region, including the start token."""
 
     def __post_init__(self) -> None:
         _check_source_language(self.source_language)

@@ -20,9 +20,11 @@ detection:
   nms_threshold: 0.35
 
 recognition:
-  # manga-ocr ONNX export (encoder, merged decoder, vocab.txt).
-  model_dir: models/manga-ocr
-  # Most tokens decoded per text region, including the start token.
+  # manga-ocr ONNX export (encoder, merged decoder, vocab.txt) reading Japanese.
+  manga_ocr_dir: models/manga-ocr
+  # PaddleOCR recognition exports reading en, ko and zh: <dir>/<language>/model.onnx and dict.txt.
+  paddle_ocr_dir: models/paddleocr
+  # Most tokens manga-ocr decodes per text region, including the start token.
   max_length: 300
 
 translation:
