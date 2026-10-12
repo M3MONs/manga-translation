@@ -14,11 +14,11 @@ import numpy as np
 import onnxruntime
 from PIL import Image
 
-from ..artifacts import get_image, get_text_mask, get_text_regions
-from ..config import Language, RecognitionOptions
-from ..context import PageContext
-from ..regions import TextRegion
-from ..step import Step, StepGroup
+from ..config.options import Language, RecognitionOptions
+from ..core.artifacts import get_image, get_text_mask, get_text_regions
+from ..core.context import PageContext
+from ..core.regions import TextRegion
+from ..core.step import Step, StepGroup
 
 _INPUT_SIZE = 224
 # [CLS] starts decoding.

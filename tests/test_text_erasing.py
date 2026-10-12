@@ -6,8 +6,8 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 from manga_translation import ErasingOptions, PageContext, Pipeline
-from manga_translation.artifacts import get_image, get_output_image
-from manga_translation.regions import BoundingBox, TextRegion
+from manga_translation.core.artifacts import get_image, get_output_image
+from manga_translation.core.regions import BoundingBox, TextRegion
 from manga_translation.steps.text_erasing import (
     LamaInpainter,
     TextErasing,

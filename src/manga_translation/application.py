@@ -2,10 +2,10 @@
 
 import asyncio
 
-from .config import AppConfig
-from .context import PageContext
+from .config.options import AppConfig
+from .core.context import PageContext
+from .core.pipeline import Pipeline
 from .inputs import collect_image_paths
-from .pipeline import Pipeline
 from .steps.image_loading import ImageLoading
 from .steps.page_saving import PageSaving
 from .steps.text_detection import TextDetection

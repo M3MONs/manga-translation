@@ -6,7 +6,7 @@ from typing import Any
 
 import yaml
 
-from .config import (
+from .options import (
     AppConfig,
     DetectionOptions,
     ErasingOptions,

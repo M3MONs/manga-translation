@@ -2,10 +2,10 @@
 
 from PIL import Image, ImageOps
 
-from ..artifacts import get_image
-from ..config import ImageOptions
-from ..context import PageContext
-from ..step import Step, StepGroup
+from ..config.options import ImageOptions
+from ..core.artifacts import get_image
+from ..core.context import PageContext
+from ..core.step import Step, StepGroup
 
 _ALPHA_MODES = {"RGBA", "RGBa", "LA", "La", "PA"}
 

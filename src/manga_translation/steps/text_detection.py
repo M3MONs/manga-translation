@@ -9,11 +9,11 @@ import numpy as np
 import onnxruntime
 from PIL import Image
 
-from ..artifacts import get_image
-from ..config import DetectionOptions
-from ..context import PageContext
-from ..regions import BoundingBox, TextRegion
-from ..step import Step, StepGroup
+from ..config.options import DetectionOptions
+from ..core.artifacts import get_image
+from ..core.context import PageContext
+from ..core.regions import BoundingBox, TextRegion
+from ..core.step import Step, StepGroup
 
 _INPUT_SIZE = 1024
 _WEIGHTS_URL = "https://github.com/zyddnys/manga-image-translator/releases/tag/beta-0.3"

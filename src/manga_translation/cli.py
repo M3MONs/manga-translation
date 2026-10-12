@@ -7,10 +7,10 @@ from typing import Annotated
 import typer
 
 from .application import run
-from .config import AppConfig, Language
-from .config_file import build_config, load_config_data
+from .config.loading import build_config, load_config_data
+from .config.options import AppConfig, Language
 from .inputs import InputError
-from .logging_config import configure_logging
+from .logs.setup import configure_logging
 
 DEFAULT_CONFIG_PATH = Path("config.yaml")
 

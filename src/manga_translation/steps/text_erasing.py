@@ -7,11 +7,11 @@ import numpy as np
 import onnxruntime
 from PIL import Image, ImageFilter
 
-from ..artifacts import get_image, get_text_mask, get_text_regions
-from ..config import ErasingOptions
-from ..context import PageContext
-from ..regions import BoundingBox
-from ..step import Step, StepGroup
+from ..config.options import ErasingOptions
+from ..core.artifacts import get_image, get_text_mask, get_text_regions
+from ..core.context import PageContext
+from ..core.regions import BoundingBox
+from ..core.step import Step, StepGroup
 
 _INPUT_SIZE = 512
 # Margin around a region, relative to its shorter side, whose text is erased too;

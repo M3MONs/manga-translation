@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 
 from manga_translation import AppConfig, DetectionOptions, Language
-from manga_translation.config_file import ConfigError, build_config, load_config_data
+from manga_translation.config.loading import ConfigError, build_config, load_config_data
 
 PAGE = Path("page.png")
 REPO_CONFIG = Path(__file__).parent.parent / "config.yaml"

@@ -2,8 +2,8 @@
 
 from collections.abc import Sequence
 
+from ..logs.execution import LoggedStep, log_pipeline
 from .context import PageContext
-from .execution_logging import LoggedStep, log_pipeline
 from .step import Step, StepGroup
 
 

@@ -8,8 +8,8 @@ import numpy as np
 from PIL import Image, ImageFont
 
 from manga_translation import Language, PageContext, Pipeline, RenderingOptions
-from manga_translation.artifacts import get_output_image
-from manga_translation.regions import BoundingBox, TextRegion
+from manga_translation.core.artifacts import get_output_image
+from manga_translation.core.regions import BoundingBox, TextRegion
 from manga_translation.steps.text_rendering import (
     FontLoader,
     TextRendering,

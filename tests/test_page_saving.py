@@ -6,7 +6,7 @@ from pathlib import Path
 from PIL import Image
 
 from manga_translation import OutputOptions, PageContext, Pipeline
-from manga_translation.artifacts import get_output_path
+from manga_translation.core.artifacts import get_output_path
 from manga_translation.steps.page_saving import PageSaving
 
 

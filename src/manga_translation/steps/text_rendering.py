@@ -9,11 +9,11 @@ from pathlib import Path
 import numpy as np
 from PIL import ImageDraw, ImageFont
 
-from ..artifacts import get_output_image, get_text_regions
-from ..config import Language, RenderingOptions
-from ..context import PageContext
-from ..regions import BoundingBox
-from ..step import Step, StepGroup
+from ..config.options import Language, RenderingOptions
+from ..core.artifacts import get_output_image, get_text_regions
+from ..core.context import PageContext
+from ..core.regions import BoundingBox
+from ..core.step import Step, StepGroup
 
 # Target languages whose script the Latin and Cyrillic font lacks.
 _CJK_LANGUAGES = {Language.ZH, Language.KO, Language.JA}

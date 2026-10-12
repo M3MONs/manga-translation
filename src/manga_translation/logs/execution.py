@@ -8,11 +8,11 @@ from functools import wraps
 from time import perf_counter
 from typing import TYPE_CHECKING, Any
 
-from .context import PageContext
-from .step import Step
+from ..core.context import PageContext
+from ..core.step import Step
 
 if TYPE_CHECKING:
-    from .pipeline import Pipeline
+    from ..core.pipeline import Pipeline
 
 logger = logging.getLogger("manga_translation.pipeline")
 

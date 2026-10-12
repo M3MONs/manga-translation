@@ -5,7 +5,7 @@ import unittest
 from io import StringIO
 from unittest.mock import patch
 
-from manga_translation.logging_config import configure_logging
+from manga_translation.logs.setup import configure_logging
 
 
 class LoggingTests(unittest.TestCase):
@@ -55,7 +55,7 @@ class LoggingTests(unittest.TestCase):
                 "root = logging.getLogger(); "
                 "handlers = root.handlers[:]; level = root.level; "
                 "import manga_translation; "
-                "import manga_translation.logging_config; "
+                "import manga_translation.logs.setup; "
                 "assert root.handlers == handlers; assert root.level == level"
             )],
             capture_output=True, text=True, check=False,

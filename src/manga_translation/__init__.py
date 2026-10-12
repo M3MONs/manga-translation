@@ -1,6 +1,6 @@
 """Composable steps for translating manga pages."""
 
-from .config import (
+from .config.options import (
     AppConfig,
     DetectionOptions,
     ErasingOptions,
@@ -11,9 +11,9 @@ from .config import (
     RenderingOptions,
     TranslationOptions,
 )
-from .context import PageContext
-from .pipeline import Pipeline
-from .step import Step
+from .core.context import PageContext
+from .core.pipeline import Pipeline
+from .core.step import Step
 
 __all__ = [
     "AppConfig",

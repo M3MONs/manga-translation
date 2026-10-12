@@ -8,7 +8,7 @@ import onnxruntime
 from PIL import Image
 
 from manga_translation import DetectionOptions, PageContext, Pipeline
-from manga_translation.regions import BoundingBox, TextRegion
+from manga_translation.core.regions import BoundingBox, TextRegion
 from manga_translation.steps.text_detection import ComicTextDetector, DetectText, TextDetection
 
 

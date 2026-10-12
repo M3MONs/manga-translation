@@ -1,9 +1,9 @@
 """Steps that write the translated page to a new file, leaving the source untouched."""
 
-from ..artifacts import get_output_image
-from ..config import OutputOptions
-from ..context import PageContext
-from ..step import Step, StepGroup
+from ..config.options import OutputOptions
+from ..core.artifacts import get_output_image
+from ..core.context import PageContext
+from ..core.step import Step, StepGroup
 
 
 class SavePage:

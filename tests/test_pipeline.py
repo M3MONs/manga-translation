@@ -5,7 +5,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from manga_translation import PageContext, Pipeline
-from manga_translation.step import Step, StepGroup
+from manga_translation.core.step import Step, StepGroup
 
 
 class RecordStep:
@@ -73,7 +73,7 @@ class PipelineTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_empty_pipeline_returns_original_context(self) -> None:
         with (
-            patch("manga_translation.execution_logging.perf_counter", side_effect=[1, 3]),
+            patch("manga_translation.logs.execution.perf_counter", side_effect=[1, 3]),
             self.assertLogs("manga_translation.pipeline", level="INFO") as logs,
         ):
             self.assertIs(await Pipeline([]).run(self.context), self.context)
@@ -117,7 +117,7 @@ class PipelineTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_logs_describe_step_and_pipeline_duration(self) -> None:
         with (
-            patch("manga_translation.execution_logging.perf_counter", side_effect=[1, 2, 4, 6]),
+            patch("manga_translation.logs.execution.perf_counter", side_effect=[1, 2, 4, 6]),
             self.assertLogs("manga_translation.pipeline", level="INFO") as logs,
         ):
             await Pipeline([RecordStep("first", [])]).run(self.context)

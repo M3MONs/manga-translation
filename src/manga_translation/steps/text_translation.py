@@ -11,10 +11,10 @@ import numpy as np
 import onnxruntime
 from tokenizers import Tokenizer
 
-from ..artifacts import get_text_regions
-from ..config import Language, TranslationOptions
-from ..context import PageContext
-from ..step import Step, StepGroup
+from ..config.options import Language, TranslationOptions
+from ..core.artifacts import get_text_regions
+from ..core.context import PageContext
+from ..core.step import Step, StepGroup
 
 # NLLB codes of the supported languages.
 _NLLB_CODES = {
