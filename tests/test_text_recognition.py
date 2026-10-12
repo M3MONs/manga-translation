@@ -84,8 +84,8 @@ class PostprocessTests(unittest.TestCase):
         self.assertEqual(_postprocess("『錬金術』"), "『錬金術』")
 
 
+# Blank, two characters and the space PaddleOCR appends to its dictionaries.
 CHARSET = ["", "a", "b", " "]
-"""Blank, two characters and the space PaddleOCR appends to its dictionaries."""
 BLANK, A, B, SPACE = 0, 1, 2, 3
 
 

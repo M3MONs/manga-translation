@@ -16,6 +16,7 @@ from ..config import Language, TranslationOptions
 from ..context import PageContext
 from ..step import Step, StepGroup
 
+# NLLB codes of the supported languages.
 _NLLB_CODES = {
     Language.EN: "eng_Latn",
     Language.PL: "pol_Latn",
@@ -33,9 +34,8 @@ _NLLB_CODES = {
     Language.VI: "vie_Latn",
     Language.TR: "tur_Latn",
 }
-"""NLLB codes of the supported languages."""
+# Ends the source text, starts decoding and ends decoding.
 _END_TOKEN = "</s>"
-"""Ends the source text, starts decoding and ends decoding."""
 _WEIGHTS_URL = "https://huggingface.co/Xenova/nllb-200-distilled-600M/tree/main"
 
 logger = logging.getLogger(__name__)

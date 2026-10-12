@@ -15,26 +15,26 @@ from ..context import PageContext
 from ..regions import BoundingBox
 from ..step import Step, StepGroup
 
+# Target languages whose script the Latin and Cyrillic font lacks.
 _CJK_LANGUAGES = {Language.ZH, Language.KO, Language.JA}
-"""Target languages whose script the Latin and Cyrillic font lacks."""
 _FONTS_URL = "https://github.com/notofonts"
 _TEXT_COLOR = "black"
 _OUTLINE_COLOR = "white"
+# Least width of the area text is drawn in, relative to its region's height; detected boxes
+# follow vertical Japanese text and are too narrow for horizontal translations.
 _AREA_ASPECT = 0.8
-"""Least width of the area text is drawn in, relative to its region's height; detected boxes
-follow vertical Japanese text and are too narrow for horizontal translations."""
+# Pixels kept free between the drawing area and other regions on the same rows.
 _NEIGHBOR_GAP = 4
-"""Pixels kept free between the drawing area and other regions on the same rows."""
+# Pixels kept free between the drawing area and a panel border.
 _BORDER_GAP = 6
-"""Pixels kept free between the drawing area and a panel border."""
+# Most rows the drawing area grows by above and below its region, relative to the region's height.
 _VERTICAL_GROWTH = 0.5
-"""Most rows the drawing area grows by above and below its region, relative to the region's height."""
+# Gray level above which an erased pixel counts as the light inside of a speech bubble.
 _LIGHT = 200
-"""Gray level above which an erased pixel counts as the light inside of a speech bubble."""
+# Least share of light pixels in an erased region for it to count as lying in a bubble.
 _BUBBLE_SHARE = 0.9
-"""Least share of light pixels in an erased region for it to count as lying in a bubble."""
+# Least share of light pixels in a strip the drawing area grows by inside a bubble.
 _STRIP_SHARE = 0.98
-"""Least share of light pixels in a strip the drawing area grows by inside a bubble."""
 
 type Font = ImageFont.FreeTypeFont
 

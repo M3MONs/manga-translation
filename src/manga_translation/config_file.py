@@ -29,8 +29,8 @@ _TOP_LEVEL_KEYS = {
     "rendering",
     "output",
 }
+# Settings given once at the top level and passed to every section that needs them.
 _SHARED_KEYS = {"source_language", "target_language"}
-"""Settings given once at the top level and passed to every section that needs them."""
 
 
 class ConfigError(ValueError):

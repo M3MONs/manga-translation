@@ -21,24 +21,24 @@ from ..regions import TextRegion
 from ..step import Step, StepGroup
 
 _INPUT_SIZE = 224
+# [CLS] starts decoding.
 _START_ID = 2
-"""[CLS] starts decoding."""
+# [SEP] ends decoding.
 _END_ID = 3
-"""[SEP] ends decoding."""
 _WEIGHTS_URL = "https://huggingface.co/dnouv/manga-ocr/tree/main"
 _PADDLE_WEIGHTS_URL = "https://huggingface.co/monkt/paddleocr-onnx/tree/main/languages"
+# Height in pixels of the text lines the PaddleOCR models read.
 _PADDLE_HEIGHT = 48
-"""Height in pixels of the text lines the PaddleOCR models read."""
+# CTC blank, emitted between characters and never part of the text.
 _BLANK_ID = 0
-"""CTC blank, emitted between characters and never part of the text."""
+# Text joining the lines of one region, by source language read with PaddleOCR.
 _LINE_SEPARATORS = {Language.EN: " ", Language.KO: " ", Language.ZH: ""}
-"""Text joining the lines of one region, by source language read with PaddleOCR."""
+# Text mask values above this (0-255) count as text when a region is split into lines.
 _LINE_MASK_THRESHOLD = 64
-"""Text mask values above this (0-255) count as text when a region is split into lines."""
+# Rows of text pixels lower than this are noise, not a line of text.
 _MIN_LINE_HEIGHT = 6
-"""Rows of text pixels lower than this are noise, not a line of text."""
+# Pixels added around each line, since the text mask hugs the glyphs.
 _LINE_PADDING = 3
-"""Pixels added around each line, since the text mask hugs the glyphs."""
 
 logger = logging.getLogger(__name__)
 

@@ -25,8 +25,8 @@ class Language(StrEnum):
     TR = "tr"
 
 
+# Languages the text on the pages can be read and translated from.
 SOURCE_LANGUAGES = frozenset({Language.JA, Language.EN, Language.KO, Language.ZH})
-"""Languages the text on the pages can be read and translated from."""
 
 
 def _check_source_language(language: Language) -> None:
@@ -36,8 +36,8 @@ def _check_source_language(language: Language) -> None:
 
 @dataclass(frozen=True)
 class ImageOptions:
+    # Longest allowed image side in pixels; 0 disables resizing.
     max_size: int = 4096
-    """Longest allowed image side in pixels; 0 disables resizing."""
 
     def __post_init__(self) -> None:
         if self.max_size < 0:
@@ -46,12 +46,12 @@ class ImageOptions:
 
 @dataclass(frozen=True)
 class DetectionOptions:
+    # comic-text-detector ONNX weights, downloaded manually.
     model_path: Path = Path("models/comictextdetector.pt.onnx")
-    """comic-text-detector ONNX weights, downloaded manually."""
+    # Detections scoring below this are discarded.
     confidence_threshold: float = 0.4
-    """Detections scoring below this are discarded."""
+    # IoU above which overlapping detections are merged into the best one.
     nms_threshold: float = 0.35
-    """IoU above which overlapping detections are merged into the best one."""
 
     def __post_init__(self) -> None:
         for name in ("confidence_threshold", "nms_threshold"):
@@ -61,15 +61,15 @@ class DetectionOptions:
 
 @dataclass(frozen=True)
 class RecognitionOptions:
+    # Language of the text on the pages; one of SOURCE_LANGUAGES.
     source_language: Language = Language.JA
-    """Language of the text on the pages; one of SOURCE_LANGUAGES."""
+    # manga-ocr ONNX export (encoder, merged decoder, vocab.txt) reading Japanese, downloaded manually.
     manga_ocr_dir: Path = Path("models/manga-ocr")
-    """manga-ocr ONNX export (encoder, merged decoder, vocab.txt) reading Japanese, downloaded manually."""
+    # PaddleOCR recognition exports reading the other source languages, one directory per language
+    # code (en, ko, zh) holding model.onnx and dict.txt, downloaded manually.
     paddle_ocr_dir: Path = Path("models/paddleocr")
-    """PaddleOCR recognition exports reading the other source languages, one directory per language
-    code (en, ko, zh) holding model.onnx and dict.txt, downloaded manually."""
+    # Most tokens manga-ocr decodes per text region, including the start token.
     max_length: int = 300
-    """Most tokens manga-ocr decodes per text region, including the start token."""
 
     def __post_init__(self) -> None:
         _check_source_language(self.source_language)
@@ -80,12 +80,12 @@ class RecognitionOptions:
 @dataclass(frozen=True)
 class TranslationOptions:
     target_language: Language = Language.EN
+    # Language of the text on the pages; one of SOURCE_LANGUAGES.
     source_language: Language = Language.JA
-    """Language of the text on the pages; one of SOURCE_LANGUAGES."""
+    # NLLB ONNX export (encoder, decoder, tokenizer.json), downloaded manually.
     model_dir: Path = Path("models/nllb-200-distilled-600M")
-    """NLLB ONNX export (encoder, decoder, tokenizer.json), downloaded manually."""
+    # Most tokens decoded per text region, including the forced prefix.
     max_length: int = 256
-    """Most tokens decoded per text region, including the forced prefix."""
 
     def __post_init__(self) -> None:
         _check_source_language(self.source_language)
@@ -95,12 +95,12 @@ class TranslationOptions:
 
 @dataclass(frozen=True)
 class ErasingOptions:
+    # LaMa inpainting ONNX weights, downloaded manually.
     model_path: Path = Path("models/lama/lama_fp32.onnx")
-    """LaMa inpainting ONNX weights, downloaded manually."""
+    # Text mask values above this (0–255) count as text pixels.
     mask_threshold: int = 64
-    """Text mask values above this (0–255) count as text pixels."""
+    # Odd size of the filter growing the text mask to cover glyph outlines; 1 disables it.
     mask_dilation: int = 21
-    """Odd size of the filter growing the text mask to cover glyph outlines; 1 disables it."""
 
     def __post_init__(self) -> None:
         if not 0 <= self.mask_threshold <= 255:
@@ -111,14 +111,14 @@ class ErasingOptions:
 
 @dataclass(frozen=True)
 class RenderingOptions:
+    # Language of the translated text; chooses between font_path and cjk_font_path.
     target_language: Language = Language.EN
-    """Language of the translated text; chooses between font_path and cjk_font_path."""
+    # Font for Latin, Cyrillic and Vietnamese text, downloaded manually.
     font_path: Path = Path("fonts/NotoSans-Regular.ttf")
-    """Font for Latin, Cyrillic and Vietnamese text, downloaded manually."""
+    # Font for Chinese, Korean and Japanese text, downloaded manually.
     cjk_font_path: Path = Path("fonts/NotoSansCJKjp-Regular.otf")
-    """Font for Chinese, Korean and Japanese text, downloaded manually."""
+    # Smallest font size; text that does not fit even at this size overflows its region.
     min_font_size: int = 8
-    """Smallest font size; text that does not fit even at this size overflows its region."""
     max_font_size: int = 48
 
     def __post_init__(self) -> None:
@@ -128,8 +128,8 @@ class RenderingOptions:
 
 @dataclass(frozen=True)
 class OutputOptions:
+    # Directory receiving the translated pages, named like their source files.
     output_dir: Path = Path("output")
-    """Directory receiving the translated pages, named like their source files."""
 
 
 @dataclass(frozen=True)

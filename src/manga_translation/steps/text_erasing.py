@@ -14,11 +14,11 @@ from ..regions import BoundingBox
 from ..step import Step, StepGroup
 
 _INPUT_SIZE = 512
+# Margin around a region, relative to its shorter side, whose text is erased too;
+# detected boxes are tight and leave out furigana, punctuation and glyph outlines.
 _MARGIN_SCALE = 0.25
-"""Margin around a region, relative to its shorter side, whose text is erased too;
-detected boxes are tight and leave out furigana, punctuation and glyph outlines."""
+# Least side of the square inpainted around the erased area, relative to its longer side.
 _CONTEXT_SCALE = 1.25
-"""Least side of the square inpainted around the erased area, relative to its longer side."""
 _WEIGHTS_URL = "https://huggingface.co/Carve/LaMa-ONNX"
 
 

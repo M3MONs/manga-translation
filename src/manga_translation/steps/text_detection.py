@@ -24,8 +24,8 @@ logger = logging.getLogger(__name__)
 @dataclass(frozen=True)
 class DetectionResult:
     regions: list[TextRegion]
+    # Per-pixel text probability scaled to 0-255, mode L, same size as the page.
     mask: Image.Image
-    """Per-pixel text probability scaled to 0-255, mode L, same size as the page."""
 
 
 class ComicTextDetector:
