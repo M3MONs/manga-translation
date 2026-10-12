@@ -1,4 +1,4 @@
-"""Steps that translate the recognized Japanese text of regions with NLLB."""
+"""Steps that translate the recognized text of regions from the source language with NLLB."""
 
 import dataclasses
 import logging
@@ -16,7 +16,6 @@ from ..config import Language, TranslationOptions
 from ..context import PageContext
 from ..step import Step, StepGroup
 
-_SOURCE_CODE = "jpn_Jpan"
 _NLLB_CODES = {
     Language.EN: "eng_Latn",
     Language.PL: "pol_Latn",
@@ -63,7 +62,7 @@ class NllbTranslator:
     def translate(self, text: str) -> str:
         end_id = self._token_id(_END_TOKEN)
         # The tokenizer's own template hardcodes English as the source, so build the ids by hand.
-        source = [self._token_id(_SOURCE_CODE)]
+        source = [self._token_id(_NLLB_CODES[self.options.source_language])]
         source += self.tokenizer.encode(text, add_special_tokens=False).ids
         source.append(end_id)
         input_ids = np.array([source], dtype=np.int64)

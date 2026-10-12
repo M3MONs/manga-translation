@@ -1,3 +1,4 @@
+import dataclasses
 import tempfile
 import unittest
 from pathlib import Path
@@ -22,8 +23,11 @@ from manga_translation.steps.text_translation import (
 )
 
 REAL_TOKENIZER = TranslationOptions().model_dir / "tokenizer.json"
-VOCAB = {"<unk>": 0, "</s>": 1, "jpn_Jpan": 2, "pol_Latn": 3, "こんにちは": 4, "cześć": 5, "świecie": 6}
-END, JPN, POL, KONNICHIWA, CZESC, SWIECIE = 1, 2, 3, 4, 5, 6
+VOCAB = {
+    "<unk>": 0, "</s>": 1, "jpn_Jpan": 2, "eng_Latn": 3, "こんにちは": 4, "hello": 5, "world": 6,
+    "kor_Hang": 7, "안녕하세요": 8,
+}
+END, JPN, ENG, KONNICHIWA, HELLO, WORLD, KOR, ANNYEONGHASEYO = 1, 2, 3, 4, 5, 6, 7, 8
 
 
 def logits_for(token: int) -> np.ndarray:
@@ -34,23 +38,23 @@ def logits_for(token: int) -> np.ndarray:
 
 class DecodingTests(unittest.TestCase):
     def test_extends_prefix_until_end_token(self) -> None:
-        script = iter([5, 6, END, 5])
-        ids = _greedy_decode(lambda ids: logits_for(next(script)), [END, POL], END, max_length=10)
-        self.assertEqual(ids, [END, POL, 5, 6, END])
+        script = iter([HELLO, WORLD, END, HELLO])
+        ids = _greedy_decode(lambda ids: logits_for(next(script)), [END, ENG], END, max_length=10)
+        self.assertEqual(ids, [END, ENG, HELLO, WORLD, END])
 
     def test_stops_at_max_length(self) -> None:
-        ids = _greedy_decode(lambda ids: logits_for(5), [END, POL], END, max_length=4)
-        self.assertEqual(ids, [END, POL, 5, 5])
+        ids = _greedy_decode(lambda ids: logits_for(HELLO), [END, ENG], END, max_length=4)
+        self.assertEqual(ids, [END, ENG, HELLO, HELLO])
 
     def test_each_step_sees_tokens_so_far(self) -> None:
         seen = []
 
         def next_token_logits(ids: list[int]) -> np.ndarray:
             seen.append(list(ids))
-            return logits_for(5 if len(ids) < 4 else END)
+            return logits_for(HELLO if len(ids) < 4 else END)
 
-        _greedy_decode(next_token_logits, [END, POL], END, max_length=10)
-        self.assertEqual(seen, [[END, POL], [END, POL, 5], [END, POL, 5, 5]])
+        _greedy_decode(next_token_logits, [END, ENG], END, max_length=10)
+        self.assertEqual(seen, [[END, ENG], [END, ENG, HELLO], [END, ENG, HELLO, HELLO]])
 
 
 class FakeSession:
@@ -70,14 +74,14 @@ class NllbTranslatorTests(unittest.TestCase):
         model_dir = Path(temp_dir.name)
         tokenizer = Tokenizer(WordLevel(VOCAB, unk_token="<unk>"))
         tokenizer.pre_tokenizer = Whitespace()
-        tokenizer.add_special_tokens([AddedToken(token) for token in ("</s>", "jpn_Jpan", "pol_Latn")])
+        tokenizer.add_special_tokens([AddedToken(token) for token in ("</s>", "jpn_Jpan", "eng_Latn", "kor_Hang")])
         tokenizer.save(str(model_dir / "tokenizer.json"))
         self.translator = NllbTranslator(
-            TranslationOptions(target_language=Language.PL, model_dir=model_dir)
+            TranslationOptions(target_language=Language.EN, model_dir=model_dir)
         )
         self.features = np.ones((1, 3, 4), dtype=np.float32)
         self.encoder = FakeSession(lambda feeds: self.features)
-        script = iter([CZESC, SWIECIE, END])
+        script = iter([HELLO, WORLD, END])
         self.decoder = FakeSession(lambda feeds: logits_for(next(script))[np.newaxis, np.newaxis])
         self.translator.encoder = cast(onnxruntime.InferenceSession, self.encoder)
         self.translator.decoder = cast(onnxruntime.InferenceSession, self.decoder)
@@ -88,15 +92,22 @@ class NllbTranslatorTests(unittest.TestCase):
         np.testing.assert_array_equal(feeds["input_ids"], [[JPN, KONNICHIWA, END]])
         np.testing.assert_array_equal(feeds["attention_mask"], [[1, 1, 1]])
 
+    def test_source_starts_with_code_of_source_language(self) -> None:
+        options = dataclasses.replace(self.translator.options, source_language=Language.KO)
+        self.translator.options = options
+        self.translator.translate("안녕하세요")
+        [feeds] = self.encoder.feeds
+        np.testing.assert_array_equal(feeds["input_ids"], [[KOR, ANNYEONGHASEYO, END]])
+
     def test_decoding_starts_with_end_token_and_target_language(self) -> None:
         self.translator.translate("こんにちは")
         first = self.decoder.feeds[0]
-        np.testing.assert_array_equal(first["input_ids"], [[END, POL]])
+        np.testing.assert_array_equal(first["input_ids"], [[END, ENG]])
         self.assertIs(first["encoder_hidden_states"], self.features)
         np.testing.assert_array_equal(first["encoder_attention_mask"], [[1, 1, 1]])
 
     def test_result_skips_special_tokens(self) -> None:
-        self.assertEqual(self.translator.translate("こんにちは"), "cześć świecie")
+        self.assertEqual(self.translator.translate("こんにちは"), "hello world")
 
     def test_missing_weights_are_reported(self) -> None:
         translator = NllbTranslator(TranslationOptions(model_dir=Path("missing")))

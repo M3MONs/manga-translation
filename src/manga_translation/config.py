@@ -25,6 +25,10 @@ class Language(StrEnum):
     TR = "tr"
 
 
+SOURCE_LANGUAGES = frozenset({Language.JA, Language.EN, Language.KO, Language.ZH})
+"""Languages the text on the pages can be read and translated from."""
+
+
 @dataclass(frozen=True)
 class ImageOptions:
     max_size: int = 4096
@@ -65,12 +69,16 @@ class RecognitionOptions:
 @dataclass(frozen=True)
 class TranslationOptions:
     target_language: Language = Language.EN
+    source_language: Language = Language.JA
+    """Language of the text on the pages; one of SOURCE_LANGUAGES."""
     model_dir: Path = Path("models/nllb-200-distilled-600M")
     """NLLB ONNX export (encoder, decoder, tokenizer.json), downloaded manually."""
     max_length: int = 256
     """Most tokens decoded per text region, including the forced prefix."""
 
     def __post_init__(self) -> None:
+        if self.source_language not in SOURCE_LANGUAGES:
+            raise ValueError(f"source_language must be one of {', '.join(sorted(SOURCE_LANGUAGES))}")
         if self.max_length <= 0:
             raise ValueError("max_length must be > 0")
 
