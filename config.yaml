@@ -1,0 +1,50 @@
+# Settings of the manga translation pipeline. Settings left out keep their defaults;
+# command-line options override the values given here.
+
+# Language of the translation: en, pl, de, fr, es, it, pt, ru, uk, zh, ko, id, vi, tr.
+target_language: en
+
+image:
+  # Longest allowed image side in pixels; 0 disables resizing.
+  max_size: 4096
+
+detection:
+  # comic-text-detector ONNX weights.
+  model_path: models/comictextdetector.pt.onnx
+  # Detections scoring below this are discarded (0-1).
+  confidence_threshold: 0.4
+  # IoU above which overlapping detections are merged into the best one (0-1).
+  nms_threshold: 0.35
+
+recognition:
+  # manga-ocr ONNX export (encoder, merged decoder, vocab.txt).
+  model_dir: models/manga-ocr
+  # Most tokens decoded per text region, including the start token.
+  max_length: 300
+
+translation:
+  # NLLB ONNX export (encoder, decoder, tokenizer.json).
+  model_dir: models/nllb-200-distilled-600M
+  # Most tokens decoded per text region, including the forced prefix.
+  max_length: 256
+
+erasing:
+  # LaMa inpainting ONNX weights.
+  model_path: models/lama/lama_fp32.onnx
+  # Text mask values above this (0-255) count as text pixels.
+  mask_threshold: 64
+  # Odd size of the filter growing the text mask to cover glyph outlines; 1 disables it.
+  mask_dilation: 21
+
+rendering:
+  # Font for Latin, Cyrillic and Vietnamese text.
+  font_path: fonts/NotoSans-Regular.ttf
+  # Font for Chinese and Korean text.
+  cjk_font_path: fonts/NotoSansCJKjp-Regular.otf
+  # Smallest font size; text that does not fit even at this size overflows its region.
+  min_font_size: 8
+  max_font_size: 48
+
+output:
+  # Directory receiving the translated pages, named like their source files.
+  output_dir: output
