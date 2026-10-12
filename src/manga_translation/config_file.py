@@ -1,8 +1,10 @@
-"""Building the application config from settings read out of a configuration file."""
+"""Reading the YAML configuration file and building the application config from it."""
 
 import typing
 from pathlib import Path
 from typing import Any
+
+import yaml
 
 from .config import (
     AppConfig,
@@ -32,6 +34,19 @@ _SHARED_KEYS = {"target_language"}
 
 class ConfigError(ValueError):
     """Raised when configuration data does not describe a valid config."""
+
+
+def load_config_data(path: Path) -> dict[str, object]:
+    """Settings read from a YAML file; an empty file gives no settings."""
+    try:
+        data = yaml.safe_load(path.read_text("utf-8"))
+    except yaml.YAMLError as error:
+        raise ConfigError(f"{path}: invalid YAML: {error}") from error
+    if data is None:
+        return {}
+    if not isinstance(data, dict):
+        raise ConfigError(f"{path}: expected a mapping of settings")
+    return data
 
 
 def build_config(input_path: Path, data: dict[str, object]) -> AppConfig:

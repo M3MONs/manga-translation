@@ -1,10 +1,12 @@
+import tempfile
 import unittest
 from pathlib import Path
 
 from manga_translation import AppConfig, DetectionOptions, Language
-from manga_translation.config_file import ConfigError, build_config
+from manga_translation.config_file import ConfigError, build_config, load_config_data
 
 PAGE = Path("page.png")
+REPO_CONFIG = Path(__file__).parent.parent / "config.yaml"
 
 
 class BuildConfigTests(unittest.TestCase):
@@ -58,3 +60,33 @@ class BuildConfigTests(unittest.TestCase):
     def test_option_validation_still_applies(self) -> None:
         with self.assertRaises(ValueError):
             build_config(PAGE, {"image": {"max_size": -1}})
+
+
+class LoadConfigDataTests(unittest.TestCase):
+    def setUp(self) -> None:
+        temp_dir = tempfile.TemporaryDirectory()
+        self.addCleanup(temp_dir.cleanup)
+        self.path = Path(temp_dir.name) / "config.yaml"
+
+    def load(self, text: str) -> dict[str, object]:
+        self.path.write_text(text, "utf-8")
+        return load_config_data(self.path)
+
+    def test_settings_are_read(self) -> None:
+        self.assertEqual(self.load("image:\n  max_size: 100\n"), {"image": {"max_size": 100}})
+
+    def test_empty_file_gives_no_settings(self) -> None:
+        self.assertEqual(self.load(""), {})
+
+    def test_invalid_files_are_rejected(self) -> None:
+        invalid = {
+            "list at the root": "- image\n",
+            "text at the root": "max_size\n",
+            "malformed YAML": "image: [\n",
+        }
+        for name, text in invalid.items():
+            with self.subTest(name), self.assertRaises(ConfigError):
+                self.load(text)
+
+    def test_repository_config_matches_defaults(self) -> None:
+        self.assertEqual(build_config(PAGE, load_config_data(REPO_CONFIG)), AppConfig(PAGE))
