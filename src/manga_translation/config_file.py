@@ -19,6 +19,7 @@ from .config import (
 )
 
 _TOP_LEVEL_KEYS = {
+    "source_language",
     "target_language",
     "image",
     "detection",
@@ -28,7 +29,7 @@ _TOP_LEVEL_KEYS = {
     "rendering",
     "output",
 }
-_SHARED_KEYS = {"target_language"}
+_SHARED_KEYS = {"source_language", "target_language"}
 """Settings given once at the top level and passed to every section that needs them."""
 
 
@@ -55,20 +56,26 @@ def build_config(input_path: Path, data: dict[str, object]) -> AppConfig:
     if unknown:
         raise ConfigError(f"{', '.join(unknown)}: unknown setting")
 
-    languages: dict[str, Any] = {}
-    if "target_language" in data:
-        languages["target_language"] = _convert("target_language", Language, data["target_language"])
+    source = _language(data, "source_language")
+    target = _language(data, "target_language")
 
     return AppConfig(
         input_path,
         image=ImageOptions(**_section(data, "image", ImageOptions)),
         detection=DetectionOptions(**_section(data, "detection", DetectionOptions)),
-        recognition=RecognitionOptions(**_section(data, "recognition", RecognitionOptions)),
-        translation=TranslationOptions(**languages, **_section(data, "translation", TranslationOptions)),
+        recognition=RecognitionOptions(**source, **_section(data, "recognition", RecognitionOptions)),
+        translation=TranslationOptions(**source, **target, **_section(data, "translation", TranslationOptions)),
         erasing=ErasingOptions(**_section(data, "erasing", ErasingOptions)),
-        rendering=RenderingOptions(**languages, **_section(data, "rendering", RenderingOptions)),
+        rendering=RenderingOptions(**target, **_section(data, "rendering", RenderingOptions)),
         output=OutputOptions(**_section(data, "output", OutputOptions)),
     )
+
+
+def _language(data: dict[str, object], key: str) -> dict[str, Any]:
+    """The language setting as keyword arguments; empty when it is not given."""
+    if key not in data:
+        return {}
+    return {key: _convert(key, Language, data[key])}
 
 
 def _section(data: dict[str, object], name: str, options: type) -> dict[str, Any]:

@@ -37,6 +37,11 @@ class BuildConfigTests(unittest.TestCase):
         self.assertEqual(config.translation.target_language, Language.PL)
         self.assertEqual(config.rendering.target_language, Language.PL)
 
+    def test_source_language_reaches_recognition_and_translation(self) -> None:
+        config = build_config(PAGE, {"source_language": "ko"})
+        self.assertEqual(config.recognition.source_language, Language.KO)
+        self.assertEqual(config.translation.source_language, Language.KO)
+
     def test_invalid_data_is_rejected(self) -> None:
         invalid = {
             "unknown section": {"colors": {}},
@@ -48,6 +53,8 @@ class BuildConfigTests(unittest.TestCase):
             "number for path": {"output": {"output_dir": 5}},
             "unsupported language": {"target_language": "xx"},
             "language inside section": {"translation": {"target_language": "pl"}},
+            "source language inside section": {"recognition": {"source_language": "ko"}},
+            "unknown source language": {"source_language": "xx"},
         }
         for name, data in invalid.items():
             with self.subTest(name), self.assertRaises(ConfigError):
@@ -60,6 +67,8 @@ class BuildConfigTests(unittest.TestCase):
     def test_option_validation_still_applies(self) -> None:
         with self.assertRaises(ValueError):
             build_config(PAGE, {"image": {"max_size": -1}})
+        with self.assertRaisesRegex(ValueError, "source_language"):
+            build_config(PAGE, {"source_language": "pl"})
 
 
 class LoadConfigDataTests(unittest.TestCase):

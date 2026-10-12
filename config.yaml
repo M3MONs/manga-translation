@@ -1,6 +1,9 @@
 # Settings of the manga translation pipeline. Settings left out keep their defaults;
 # command-line options override the values given here.
 
+# Language of the text on the pages: ja, en, ko, zh.
+source_language: ja
+
 # Language of the translation: en, pl, de, fr, es, it, pt, ru, uk, zh, ko, ja, id, vi, tr.
 target_language: en
 

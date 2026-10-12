@@ -160,6 +160,24 @@ class CliConfigFileTests(unittest.TestCase):
         self.assertEqual(config.rendering.target_language, Language.PL)
         self.assertEqual(config.output.output_dir, Path("from_cli"))
 
+    def test_source_language_option_overrides_config_file(self) -> None:
+        path = self.write_config("source_language: zh\n")
+        result = self.invoke("--config", str(path), "--source-language", "ko")
+        self.assertEqual(result.exit_code, 0, result.output)
+        self.assertEqual(self.config_used().recognition.source_language, Language.KO)
+        self.assertEqual(self.config_used().translation.source_language, Language.KO)
+
+    def test_source_language_from_config_file_is_kept(self) -> None:
+        result = self.invoke("--config", str(self.write_config("source_language: en\n")))
+        self.assertEqual(result.exit_code, 0, result.output)
+        self.assertEqual(self.config_used().recognition.source_language, Language.EN)
+
+    def test_unsupported_source_language_option_fails(self) -> None:
+        result = self.invoke("--source-language", "pl")
+        self.assertNotEqual(result.exit_code, 0)
+        self.assertIn("source_language", result.output)
+        self.run_mock.assert_not_called()
+
     def test_japanese_target_language_is_accepted(self) -> None:
         result = self.invoke("--language", "ja")
         self.assertEqual(result.exit_code, 0, result.output)
