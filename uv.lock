@@ -175,6 +175,7 @@ dependencies = [
     { name = "numpy" },
     { name = "onnxruntime" },
     { name = "pillow" },
+    { name = "pyyaml" },
     { name = "tokenizers" },
     { name = "typer" },
 ]
@@ -184,6 +185,7 @@ requires-dist = [
     { name = "numpy", specifier = ">=2.5.3" },
     { name = "onnxruntime", specifier = ">=1.30.0" },
     { name = "pillow", specifier = ">=12.3.0" },
+    { name = "pyyaml", specifier = ">=6.0.3" },
     { name = "tokenizers", specifier = ">=0.23.2" },
     { name = "typer", specifier = ">=0.27.3" },
 ]
