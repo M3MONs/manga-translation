@@ -114,3 +114,78 @@ class CliTests(unittest.TestCase):
         result = self.invoke(str(path))
         self.assertEqual(result.exit_code, 0, result.output)
         self.assertTrue((self.output.output_dir / "page.png").is_file())
+
+
+class CliConfigFileTests(unittest.TestCase):
+    def setUp(self) -> None:
+        temp_dir = tempfile.TemporaryDirectory()
+        self.addCleanup(temp_dir.cleanup)
+        self.directory = Path(temp_dir.name)
+        self.page = self.directory / "page.png"
+        Image.new("RGB", (30, 20)).save(self.page)
+        for target in ("manga_translation.cli.configure_logging", "manga_translation.cli.run"):
+            patcher = patch(target, return_value=[])
+            self.addCleanup(patcher.stop)
+            self.run_mock = patcher.start()
+
+    def write_config(self, text: str) -> Path:
+        path = self.directory / "settings.yaml"
+        path.write_text(text, "utf-8")
+        return path
+
+    def invoke(self, *args: str):
+        return CliRunner().invoke(app, [str(self.page), *args])
+
+    def config_used(self) -> AppConfig:
+        return self.run_mock.call_args.args[0]
+
+    def test_config_file_settings_reach_config(self) -> None:
+        path = self.write_config("image:\n  max_size: 200\nrendering:\n  max_font_size: 30\n")
+        result = self.invoke("--config", str(path))
+        self.assertEqual(result.exit_code, 0, result.output)
+        self.assertEqual(self.config_used().image.max_size, 200)
+        self.assertEqual(self.config_used().rendering.max_font_size, 30)
+
+    def test_options_override_config_file(self) -> None:
+        path = self.write_config(
+            "target_language: de\nimage:\n  max_size: 200\noutput:\n  output_dir: from_file\n"
+        )
+        result = self.invoke(
+            "--config", str(path), "--max-size", "100", "--language", "pl", "--output", "from_cli"
+        )
+        self.assertEqual(result.exit_code, 0, result.output)
+        config = self.config_used()
+        self.assertEqual(config.image.max_size, 100)
+        self.assertEqual(config.translation.target_language, Language.PL)
+        self.assertEqual(config.rendering.target_language, Language.PL)
+        self.assertEqual(config.output.output_dir, Path("from_cli"))
+
+    def test_default_config_file_is_used_when_present(self) -> None:
+        path = self.write_config("image:\n  max_size: 300\n")
+        with patch("manga_translation.cli.DEFAULT_CONFIG_PATH", path):
+            result = self.invoke()
+        self.assertEqual(result.exit_code, 0, result.output)
+        self.assertEqual(self.config_used().image.max_size, 300)
+
+    def test_defaults_are_used_without_config_file(self) -> None:
+        with patch("manga_translation.cli.DEFAULT_CONFIG_PATH", self.directory / "missing.yaml"):
+            result = self.invoke()
+        self.assertEqual(result.exit_code, 0, result.output)
+        self.assertEqual(self.config_used(), AppConfig(self.page))
+
+    def test_missing_config_file_fails(self) -> None:
+        result = self.invoke("--config", str(self.directory / "missing.yaml"))
+        self.assertNotEqual(result.exit_code, 0)
+        self.run_mock.assert_not_called()
+
+    def test_invalid_config_file_fails(self) -> None:
+        invalid = {
+            "wrong type": "image:\n  max_size: abc\n",
+            "value out of range": "image:\n  max_size: -1\n",
+        }
+        for name, text in invalid.items():
+            with self.subTest(name):
+                result = self.invoke("--config", str(self.write_config(text)))
+                self.assertNotEqual(result.exit_code, 0)
+                self.assertIn("max_size", result.output)
+        self.run_mock.assert_not_called()
