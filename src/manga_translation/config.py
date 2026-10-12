@@ -94,9 +94,9 @@ class ErasingOptions:
 class RenderingOptions:
     target_language: Language = Language.EN
     """Language of the translated text; chooses between font_path and cjk_font_path."""
-    font_path: Path = Path("models/fonts/NotoSans-Regular.ttf")
+    font_path: Path = Path("fonts/NotoSans-Regular.ttf")
     """Font for Latin, Cyrillic and Vietnamese text, downloaded manually."""
-    cjk_font_path: Path = Path("models/fonts/NotoSansCJKjp-Regular.otf")
+    cjk_font_path: Path = Path("fonts/NotoSansCJKjp-Regular.otf")
     """Font for Chinese and Korean text, downloaded manually."""
     min_font_size: int = 8
     """Smallest font size; text that does not fit even at this size overflows its region."""
