@@ -19,6 +19,7 @@ class Language(StrEnum):
     UK = "uk"
     ZH = "zh"
     KO = "ko"
+    JA = "ja"
     ID = "id"
     VI = "vi"
     TR = "tr"
@@ -97,7 +98,7 @@ class RenderingOptions:
     font_path: Path = Path("fonts/NotoSans-Regular.ttf")
     """Font for Latin, Cyrillic and Vietnamese text, downloaded manually."""
     cjk_font_path: Path = Path("fonts/NotoSansCJKjp-Regular.otf")
-    """Font for Chinese and Korean text, downloaded manually."""
+    """Font for Chinese, Korean and Japanese text, downloaded manually."""
     min_font_size: int = 8
     """Smallest font size; text that does not fit even at this size overflows its region."""
     max_font_size: int = 48

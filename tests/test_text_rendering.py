@@ -95,6 +95,7 @@ class FontLoaderTests(unittest.TestCase):
         self.assertEqual(self.loader(Language.RU).data, b"latin")
         self.assertEqual(self.loader(Language.ZH).data, b"cjk")
         self.assertEqual(self.loader(Language.KO).data, b"cjk")
+        self.assertEqual(self.loader(Language.JA).data, b"cjk")
 
     def test_missing_font_is_reported(self) -> None:
         loader = FontLoader(RenderingOptions(font_path=Path("missing.ttf")))

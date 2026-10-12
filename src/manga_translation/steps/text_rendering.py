@@ -15,7 +15,7 @@ from ..context import PageContext
 from ..regions import BoundingBox
 from ..step import Step, StepGroup
 
-_CJK_LANGUAGES = {Language.ZH, Language.KO}
+_CJK_LANGUAGES = {Language.ZH, Language.KO, Language.JA}
 """Target languages whose script the Latin and Cyrillic font lacks."""
 _FONTS_URL = "https://github.com/notofonts"
 _TEXT_COLOR = "black"

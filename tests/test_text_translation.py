@@ -14,7 +14,7 @@ from manga_translation import Language, PageContext, Pipeline, TranslationOption
 from manga_translation.artifacts import get_text_regions
 from manga_translation.regions import BoundingBox, TextRegion
 from manga_translation.steps.text_translation import (
-    _TARGET_CODES,
+    _NLLB_CODES,
     NllbTranslator,
     TextTranslation,
     TranslateText,
@@ -106,12 +106,12 @@ class NllbTranslatorTests(unittest.TestCase):
 
 class LanguageCodeTests(unittest.TestCase):
     def test_every_language_has_a_code(self) -> None:
-        self.assertEqual(set(_TARGET_CODES), set(Language))
+        self.assertEqual(set(_NLLB_CODES), set(Language))
 
     @unittest.skipUnless(REAL_TOKENIZER.is_file(), "NLLB tokenizer not downloaded")
     def test_codes_exist_in_real_tokenizer(self) -> None:
         tokenizer = Tokenizer.from_file(str(REAL_TOKENIZER))
-        for language, code in _TARGET_CODES.items():
+        for language, code in _NLLB_CODES.items():
             with self.subTest(language):
                 self.assertIsNotNone(tokenizer.token_to_id(code))
 

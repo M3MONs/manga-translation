@@ -17,7 +17,7 @@ from ..context import PageContext
 from ..step import Step, StepGroup
 
 _SOURCE_CODE = "jpn_Jpan"
-_TARGET_CODES = {
+_NLLB_CODES = {
     Language.EN: "eng_Latn",
     Language.PL: "pol_Latn",
     Language.DE: "deu_Latn",
@@ -29,11 +29,12 @@ _TARGET_CODES = {
     Language.UK: "ukr_Cyrl",
     Language.ZH: "zho_Hans",
     Language.KO: "kor_Hang",
+    Language.JA: "jpn_Jpan",
     Language.ID: "ind_Latn",
     Language.VI: "vie_Latn",
     Language.TR: "tur_Latn",
 }
-"""NLLB language codes of the supported target languages."""
+"""NLLB codes of the supported languages."""
 _END_TOKEN = "</s>"
 """Ends the source text, starts decoding and ends decoding."""
 _WEIGHTS_URL = "https://huggingface.co/Xenova/nllb-200-distilled-600M/tree/main"
@@ -80,7 +81,7 @@ class NllbTranslator:
             [logits] = cast(list[np.ndarray], self.decoder.run(["logits"], feeds))
             return logits[0, -1]
 
-        prefix = [end_id, self._token_id(_TARGET_CODES[self.options.target_language])]
+        prefix = [end_id, self._token_id(_NLLB_CODES[self.options.target_language])]
         ids = _greedy_decode(next_token_logits, prefix, end_id, self.options.max_length)
         return self.tokenizer.decode(ids, skip_special_tokens=True)
 

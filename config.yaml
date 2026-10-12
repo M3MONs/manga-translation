@@ -1,7 +1,7 @@
 # Settings of the manga translation pipeline. Settings left out keep their defaults;
 # command-line options override the values given here.
 
-# Language of the translation: en, pl, de, fr, es, it, pt, ru, uk, zh, ko, id, vi, tr.
+# Language of the translation: en, pl, de, fr, es, it, pt, ru, uk, zh, ko, ja, id, vi, tr.
 target_language: en
 
 image:
@@ -39,7 +39,7 @@ erasing:
 rendering:
   # Font for Latin, Cyrillic and Vietnamese text.
   font_path: fonts/NotoSans-Regular.ttf
-  # Font for Chinese and Korean text.
+  # Font for Chinese, Korean and Japanese text.
   cjk_font_path: fonts/NotoSansCJKjp-Regular.otf
   # Smallest font size; text that does not fit even at this size overflows its region.
   min_font_size: 8

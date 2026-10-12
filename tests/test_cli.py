@@ -160,6 +160,12 @@ class CliConfigFileTests(unittest.TestCase):
         self.assertEqual(config.rendering.target_language, Language.PL)
         self.assertEqual(config.output.output_dir, Path("from_cli"))
 
+    def test_japanese_target_language_is_accepted(self) -> None:
+        result = self.invoke("--language", "ja")
+        self.assertEqual(result.exit_code, 0, result.output)
+        self.assertEqual(self.config_used().translation.target_language, Language.JA)
+        self.assertEqual(self.config_used().rendering.target_language, Language.JA)
+
     def test_default_config_file_is_used_when_present(self) -> None:
         path = self.write_config("image:\n  max_size: 300\n")
         with patch("manga_translation.cli.DEFAULT_CONFIG_PATH", path):
